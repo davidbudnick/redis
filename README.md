@@ -9,6 +9,14 @@ A powerful terminal user interface (TUI) for managing Redis databases, built wit
 
 **Redis TUI** is a feature-rich Redis client for the terminal that lets you browse, edit, and manage your Redis keys with ease. Perfect for developers and DevOps engineers who prefer working in the command line.
 
+## Quick Install
+
+```bash
+# Homebrew (macOS and Linux)
+brew tap davidbudnick/tap
+brew install redis-tui
+```
+
 ## Why Redis TUI?
 
 - **No GUI Required** - Manage Redis directly from your terminal over SSH
@@ -178,6 +186,16 @@ A powerful terminal user interface (TUI) for managing Redis databases, built wit
 - 📝 **Application Logs** - View internal application logs
 
 ## Installation
+
+### Homebrew (macOS and Linux)
+
+```bash
+# Add the tap
+brew tap davidbudnick/tap
+
+# Install redis-tui
+brew install redis-tui
+```
 
 ### From Source
 
