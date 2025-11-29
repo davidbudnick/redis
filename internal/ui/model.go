@@ -147,6 +147,9 @@ type Model struct {
 	// Expiring keys alerts
 	ExpiringKeys    []types.RedisKey
 	ExpiryThreshold int64 // seconds
+
+	// Last tick time for accurate TTL counting
+	LastTickTime time.Time
 }
 
 func NewModel() Model {
