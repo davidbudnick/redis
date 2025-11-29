@@ -79,11 +79,11 @@ A powerful terminal user interface (TUI) for managing Redis databases, built wit
 │                                                                  │
 │  Value:                                                          │
 │  ┌─────────────────────────────────────────────────────────────┐ │
-│  │ ◆ age: 30                                                   │ │
-│  │ ◆ city: New York                                            │ │
-│  │ ◆ email: john@example.com                                   │ │
-│  │ ◆ name: John Doe                                            │ │
-│  │ ◆ status: active                                            │ │
+│  │ * age: 30                                                   │ │
+│  │ * city: New York                                            │ │
+│  │ * email: john@example.com                                   │ │
+│  │ * name: John Doe                                            │ │
+│  │ * status: active                                            │ │
 │  └─────────────────────────────────────────────────────────────┘ │
 │                                                                  │
 │  t:TTL  d:del  r:refresh  R:rename  c:copy  a:add  x:remove      │
