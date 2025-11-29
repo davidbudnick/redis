@@ -79,16 +79,15 @@ changelog:
     - title: Others
       order: 999
 
-# Uncomment when davidbudnick/homebrew-tap repo exists:
-# homebrew_casks:
-#   - name: redis-tui
-#     repository:
-#       owner: davidbudnick
-#       name: homebrew-tap
-#     directory: Casks
-#     homepage: https://github.com/davidbudnick/redis
-#     description: A powerful TUI for managing Redis databases
-#     license: MIT
+brews:
+  - name: redis-tui
+    repository:
+      owner: davidbudnick
+      name: homebrew-tap
+    directory: Formula
+    homepage: https://github.com/davidbudnick/redis
+    description: A powerful TUI for managing Redis databases
+    license: MIT
 
 nfpms:
   - id: packages
@@ -131,6 +130,11 @@ release:
     See the full changelog below for all changes.
   footer: |
     ## Installation
+    
+    ### Homebrew (macOS/Linux)
+    ```bash
+    brew install davidbudnick/tap/redis-tui
+    ```
     
     ### Go Install
     ```bash
