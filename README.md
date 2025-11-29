@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/davidbudnick/redis/actions/workflows/ci.yml/badge.svg)](https://github.com/davidbudnick/redis/actions/workflows/ci.yml)
 [![Release](https://github.com/davidbudnick/redis/actions/workflows/release.yml/badge.svg)](https://github.com/davidbudnick/redis/actions/workflows/release.yml)
-[![Go Report Card](https://goreportcard.com/badge/github.com/davidbudnick/redis)](https://goreportcard.com/report/github.com/davidbudnick/redis)
+[![Go Report Card](https://goreportcard.com/badge/github.com/davidbudnick/redis?v=1)](https://goreportcard.com/report/github.com/davidbudnick/redis)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 A powerful terminal user interface (TUI) for managing Redis databases, built with Go and [Bubble Tea](https://github.com/charmbracelet/bubbletea).
