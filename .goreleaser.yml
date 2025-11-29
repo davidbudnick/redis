@@ -1,0 +1,147 @@
+# GoReleaser configuration for Redis TUI Manager
+# See https://goreleaser.com for documentation
+
+version: 2
+
+project_name: redis-tui
+
+before:
+  hooks:
+    - go mod tidy
+
+builds:
+  - id: redis-tui
+    main: .
+    binary: redis-tui
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - darwin
+      - windows
+    goarch:
+      - amd64
+      - arm64
+    ignore:
+      - goos: windows
+        goarch: arm64
+    ldflags:
+      - -s -w
+      - -X main.version={{.Version}}
+      - -X main.commit={{.Commit}}
+      - -X main.date={{.Date}}
+
+archives:
+  - id: default
+    name_template: >-
+      {{ .ProjectName }}_
+      {{- .Version }}_
+      {{- title .Os }}_
+      {{- if eq .Arch "amd64" }}x86_64
+      {{- else if eq .Arch "386" }}i386
+      {{- else }}{{ .Arch }}{{ end }}
+    format_overrides:
+      - goos: windows
+        format: zip
+    files:
+      - README.md
+      - LICENSE
+
+checksum:
+  name_template: 'checksums.txt'
+
+snapshot:
+  version_template: "{{ incpatch .Version }}-next"
+
+changelog:
+  sort: asc
+  use: github
+  filters:
+    exclude:
+      - '^docs:'
+      - '^test:'
+      - '^chore:'
+      - Merge pull request
+      - Merge branch
+  groups:
+    - title: Features
+      regexp: '^.*?feat(\([[:word:]]+\))??!?:.+$'
+      order: 0
+    - title: Bug Fixes
+      regexp: '^.*?fix(\([[:word:]]+\))??!?:.+$'
+      order: 1
+    - title: Performance
+      regexp: '^.*?perf(\([[:word:]]+\))??!?:.+$'
+      order: 2
+    - title: Others
+      order: 999
+
+brews:
+  - name: redis-tui
+    repository:
+      owner: davidbudnick
+      name: homebrew-tap
+    directory: Formula
+    homepage: https://github.com/davidbudnick/redis
+    description: A powerful TUI for managing Redis databases
+    license: MIT
+    dependencies:
+      - name: go
+        type: build
+    test: |
+      system "#{bin}/redis-tui", "--version"
+
+nfpms:
+  - id: packages
+    package_name: redis-tui
+    vendor: David Budnick
+    homepage: https://github.com/davidbudnick/redis
+    maintainer: David Budnick
+    description: A powerful TUI for managing Redis databases
+    license: MIT
+    formats:
+      - deb
+      - rpm
+      - apk
+    bindir: /usr/bin
+
+# Optional: Sign releases
+# signs:
+#   - artifacts: checksum
+
+# Optional: Docker images
+# dockers:
+#   - image_templates:
+#       - "ghcr.io/davidbudnick/redis-tui:{{ .Tag }}"
+#       - "ghcr.io/davidbudnick/redis-tui:latest"
+#     dockerfile: Dockerfile
+#     build_flag_templates:
+#       - "--platform=linux/amd64"
+
+release:
+  github:
+    owner: davidbudnick
+    name: redis
+  draft: false
+  prerelease: auto
+  mode: append
+  name_template: "Redis TUI v{{.Version}}"
+  header: |
+    ## What's New in Redis TUI v{{.Version}}
+    
+    See the full changelog below for all changes.
+  footer: |
+    ## Installation
+    
+    ### Homebrew (macOS/Linux)
+    ```bash
+    brew install davidbudnick/tap/redis-tui
+    ```
+    
+    ### Go Install
+    ```bash
+    go install github.com/davidbudnick/redis@{{.Tag}}
+    ```
+    
+    ### Binary Download
+    Download the appropriate binary for your platform from the assets below.
