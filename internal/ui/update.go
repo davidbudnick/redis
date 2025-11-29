@@ -1966,25 +1966,18 @@ func (m Model) handleKeyspaceEventsScreen(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 
 func (m Model) handleThemeSelectScreen(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	themes := []string{"dark", "light", "nord", "dracula"}
-	currentIdx := 0
-	for i, t := range themes {
-		if t == m.ThemeName {
-			currentIdx = i
-			break
-		}
-	}
 
 	switch msg.String() {
 	case "up", "k":
-		if currentIdx > 0 {
-			currentIdx--
+		if m.SelectedItemIdx > 0 {
+			m.SelectedItemIdx--
 		}
 	case "down", "j":
-		if currentIdx < len(themes)-1 {
-			currentIdx++
+		if m.SelectedItemIdx < len(themes)-1 {
+			m.SelectedItemIdx++
 		}
 	case "enter":
-		newTheme := themes[currentIdx]
+		newTheme := themes[m.SelectedItemIdx]
 		switch newTheme {
 		case "dark":
 			m.Theme = types.DarkTheme

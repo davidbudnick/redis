@@ -971,18 +971,18 @@ func (c *Client) ImportKeys(data map[string]interface{}) (int, error) {
 		switch keyType {
 		case "string":
 			if val, ok := keyData["value"].(string); ok {
-				c.SetString(key, val, ttl)
+				_ = c.SetString(key, val, ttl)
 				count++
 			}
 		case "list":
 			if vals, ok := keyData["value"].([]interface{}); ok {
 				for _, v := range vals {
 					if s, ok := v.(string); ok {
-						c.RPush(key, s)
+						_ = c.RPush(key, s)
 					}
 				}
 				if ttl > 0 {
-					c.SetTTL(key, ttl)
+					_ = c.SetTTL(key, ttl)
 				}
 				count++
 			}
@@ -990,11 +990,11 @@ func (c *Client) ImportKeys(data map[string]interface{}) (int, error) {
 			if vals, ok := keyData["value"].([]interface{}); ok {
 				for _, v := range vals {
 					if s, ok := v.(string); ok {
-						c.SAdd(key, s)
+						_ = c.SAdd(key, s)
 					}
 				}
 				if ttl > 0 {
-					c.SetTTL(key, ttl)
+					_ = c.SetTTL(key, ttl)
 				}
 				count++
 			}
@@ -1004,11 +1004,11 @@ func (c *Client) ImportKeys(data map[string]interface{}) (int, error) {
 					if m, ok := v.(map[string]interface{}); ok {
 						member, _ := m["member"].(string)
 						score, _ := m["score"].(float64)
-						c.ZAdd(key, score, member)
+						_ = c.ZAdd(key, score, member)
 					}
 				}
 				if ttl > 0 {
-					c.SetTTL(key, ttl)
+					_ = c.SetTTL(key, ttl)
 				}
 				count++
 			}
@@ -1016,11 +1016,11 @@ func (c *Client) ImportKeys(data map[string]interface{}) (int, error) {
 			if vals, ok := keyData["value"].(map[string]interface{}); ok {
 				for field, val := range vals {
 					if s, ok := val.(string); ok {
-						c.HSet(key, field, s)
+						_ = c.HSet(key, field, s)
 					}
 				}
 				if ttl > 0 {
-					c.SetTTL(key, ttl)
+					_ = c.SetTTL(key, ttl)
 				}
 				count++
 			}

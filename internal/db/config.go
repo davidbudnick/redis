@@ -320,7 +320,7 @@ func (c *Config) AddRecentKey(connID int64, key string, keyType types.KeyType) {
 		c.RecentKeys = c.RecentKeys[:c.MaxRecentKeys]
 	}
 
-	c.save()
+	_ = c.save()
 }
 
 func (c *Config) ListRecentKeys(connID int64) []types.RecentKey {
@@ -347,7 +347,7 @@ func (c *Config) ClearRecentKeys(connID int64) {
 		}
 	}
 	c.RecentKeys = remaining
-	c.save()
+	_ = c.save()
 }
 
 // Value history management
@@ -370,7 +370,7 @@ func (c *Config) AddValueHistory(key string, value types.RedisValue, action stri
 		c.ValueHistory = c.ValueHistory[:c.MaxValueHistory]
 	}
 
-	c.save()
+	_ = c.save()
 }
 
 func (c *Config) GetValueHistory(key string) []types.ValueHistoryEntry {
@@ -391,7 +391,7 @@ func (c *Config) ClearValueHistory() {
 	defer c.mu.Unlock()
 
 	c.ValueHistory = []types.ValueHistoryEntry{}
-	c.save()
+	_ = c.save()
 }
 
 // Templates management

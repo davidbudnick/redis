@@ -40,9 +40,12 @@ archives:
       {{- if eq .Arch "amd64" }}x86_64
       {{- else if eq .Arch "386" }}i386
       {{- else }}{{ .Arch }}{{ end }}
+    formats:
+      - tar.gz
     format_overrides:
       - goos: windows
-        format: zip
+        formats:
+          - zip
     files:
       - README.md
       - LICENSE
@@ -76,20 +79,15 @@ changelog:
     - title: Others
       order: 999
 
-brews:
+homebrew_casks:
   - name: redis-tui
     repository:
       owner: davidbudnick
       name: homebrew-tap
-    directory: Formula
+    directory: Casks
     homepage: https://github.com/davidbudnick/redis
     description: A powerful TUI for managing Redis databases
     license: MIT
-    dependencies:
-      - name: go
-        type: build
-    test: |
-      system "#{bin}/redis-tui", "--version"
 
 nfpms:
   - id: packages

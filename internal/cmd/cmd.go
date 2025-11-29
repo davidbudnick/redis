@@ -86,7 +86,7 @@ func ConnectCmd(host string, port int, password string, dbNum int) tea.Cmd {
 func DisconnectCmd() tea.Cmd {
 	return func() tea.Msg {
 		if RedisClient != nil {
-			RedisClient.Disconnect()
+			_ = RedisClient.Disconnect()
 		}
 		return types.DisconnectedMsg{}
 	}
