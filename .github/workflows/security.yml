@@ -28,10 +28,9 @@ jobs:
           gosec ./...
 
       - name: Run Govulncheck
-        uses: golang/govulncheck-action@v1
-        with:
-          go-version-input: '1.25'
-          go-package: ./...
+        run: |
+          go install golang.org/x/vuln/cmd/govulncheck@latest
+          govulncheck ./...
 
   dependency-review:
     name: Dependency Review
