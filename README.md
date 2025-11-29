@@ -1,11 +1,21 @@
 # Redis TUI Manager
 
 [![CI](https://github.com/davidbudnick/redis/actions/workflows/ci.yml/badge.svg)](https://github.com/davidbudnick/redis/actions/workflows/ci.yml)
-[![Release](https://github.com/davidbudnick/redis/actions/workflows/release.yml/badge.svg)](https://github.com/davidbudnick/redis/actions/workflows/release.yml)
+[![Release](https://github.com/davidbudnick/redis/actions/workflows/release.yml/badge.svg)](https://github.com/davidbudnick/releases/workflows/release.yml)
 [![Go Report Card](https://goreportcard.com/badge/github.com/davidbudnick/redis)](https://goreportcard.com/report/github.com/davidbudnick/redis)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 A powerful terminal user interface (TUI) for managing Redis databases, built with Go and [Bubble Tea](https://github.com/charmbracelet/bubbletea).
+
+**Redis TUI** is a feature-rich Redis client for the terminal that lets you browse, edit, and manage your Redis keys with ease. Perfect for developers and DevOps engineers who prefer working in the command line.
+
+## Why Redis TUI?
+
+- **No GUI Required** - Manage Redis directly from your terminal over SSH
+- **Fast and Lightweight** - Built in Go for speed and minimal resource usage
+- **Full Redis Support** - Works with all Redis data types: strings, lists, sets, sorted sets, hashes, and streams
+- **Secure Connections** - TLS/SSL and SSH tunnel support for secure access
+- **Multiple Connections** - Save and switch between multiple Redis instances easily
 
 ## Screenshots
 
@@ -272,14 +282,82 @@ redis
 
 Configuration is stored in `~/.config/redis-tui/config.json`.
 
+### Example Configuration
+
+```json
+{
+  "connections": [
+    {
+      "id": 1,
+      "name": "Local Redis",
+      "host": "localhost",
+      "port": 6379,
+      "password": "",
+      "db": 0,
+      "use_tls": false
+    },
+    {
+      "id": 2,
+      "name": "Production",
+      "host": "redis.example.com",
+      "port": 6379,
+      "password": "your-password",
+      "db": 0,
+      "use_tls": true
+    }
+  ],
+  "key_bindings": {
+    "up": "k",
+    "down": "j",
+    "select": "enter",
+    "back": "esc",
+    "quit": "q",
+    "help": "?",
+    "refresh": "r",
+    "delete": "d",
+    "add": "a",
+    "edit": "e",
+    "filter": "/",
+    "server_info": "i",
+    "export": "E",
+    "import": "I"
+  },
+  "tree_separator": ":",
+  "max_recent_keys": 20,
+  "max_value_history": 50,
+  "watch_interval_ms": 1000
+}
+```
+
+### Connection Options
+
+| Option | Description |
+| --- | --- |
+| `name` | Display name for the connection |
+| `host` | Redis server hostname or IP |
+| `port` | Redis server port (default: 6379) |
+| `password` | Redis password (optional) |
+| `db` | Redis database number (0-15) |
+| `use_tls` | Enable TLS/SSL connection |
+| `ssh_host` | SSH tunnel hostname (optional) |
+| `ssh_user` | SSH tunnel username (optional) |
+| `ssh_key_path` | Path to SSH private key (optional) |
+
 ### Custom Keybindings
 
-Keybindings can be customized in the configuration file under the `keybindings` section.
+Keybindings can be customized in the configuration file under the `key_bindings` section. All navigation and action keys can be remapped to your preference.
 
 ## Requirements
 
-- Go 1.21 or later
+- Go 1.21 or later (for building from source)
 - A terminal that supports 256 colors
+- Redis server 4.0 or later
+
+## Supported Platforms
+
+- macOS (Intel and Apple Silicon)
+- Linux (amd64, arm64)
+- Windows (amd64)
 
 ## Development
 
@@ -320,3 +398,14 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 - [Lip Gloss](https://github.com/charmbracelet/lipgloss) - Styling library
 - [Bubbles](https://github.com/charmbracelet/bubbles) - TUI components
 - [go-redis](https://github.com/redis/go-redis) - Redis client
+
+## Related Projects
+
+If you're looking for Redis tools, you might also be interested in:
+
+- [redis-cli](https://redis.io/docs/ui/cli/) - Official Redis command line interface
+- [RedisInsight](https://redis.com/redis-enterprise/redis-insight/) - Official Redis GUI
+
+## Keywords
+
+redis, redis-cli, redis-client, redis-tui, redis-gui, redis-manager, terminal, tui, cli, go, golang, database, key-value, cache, devops, sysadmin
