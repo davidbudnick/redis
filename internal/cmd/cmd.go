@@ -10,9 +10,9 @@ import (
 	"strings"
 	"time"
 
-	"redis/internal/db"
-	"redis/internal/redis"
-	"redis/internal/types"
+	"github.com/davidbudnick/redis/internal/db"
+	"github.com/davidbudnick/redis/internal/redis"
+	"github.com/davidbudnick/redis/internal/types"
 
 	tea "github.com/charmbracelet/bubbletea"
 )

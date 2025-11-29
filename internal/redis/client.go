@@ -10,7 +10,7 @@ import (
 	"strings"
 	"time"
 
-	"redis/internal/types"
+	"github.com/davidbudnick/redis/internal/types"
 
 	"github.com/redis/go-redis/v9"
 )

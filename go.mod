@@ -1,4 +1,4 @@
-module redis
+module github.com/davidbudnick/redis
 
 go 1.25
 

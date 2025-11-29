@@ -4,8 +4,8 @@ import (
 	"strconv"
 	"time"
 
-	"redis/internal/cmd"
-	"redis/internal/types"
+	"github.com/davidbudnick/redis/internal/cmd"
+	"github.com/davidbudnick/redis/internal/types"
 
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"

@@ -8,7 +8,7 @@ import (
 	"sync"
 	"time"
 
-	"redis/internal/types"
+	"github.com/davidbudnick/redis/internal/types"
 )
 
 // Config stores all application configuration
