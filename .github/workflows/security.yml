@@ -23,9 +23,9 @@ jobs:
           cache: true
 
       - name: Run Gosec
-        uses: securego/gosec@master
-        with:
-          args: ./...
+        run: |
+          go install github.com/securego/gosec/v2/cmd/gosec@latest
+          gosec ./...
 
       - name: Run Govulncheck
         uses: golang/govulncheck-action@v1
