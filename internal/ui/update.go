@@ -3,6 +3,7 @@ package ui
 import (
 	"sort"
 	"strconv"
+	"strings"
 	"time"
 
 	"redis/internal/cmd"
@@ -817,13 +818,19 @@ func (m Model) handleKeysScreen(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	if m.PatternInput.Focused() {
 		switch msg.String() {
 		case "enter":
-			m.KeyPattern = m.PatternInput.Value()
+			pattern := m.PatternInput.Value()
+			// Auto-wrap with wildcards if no glob characters present for partial matching
+			if pattern != "" && !strings.ContainsAny(pattern, "*?[]") {
+				pattern = "*" + pattern + "*"
+			}
+			m.KeyPattern = pattern
 			m.PatternInput.Blur()
 			m.KeyCursor = 0
 			m.Loading = true
 			return m, cmd.LoadKeysCmd(m.KeyPattern, 0, 100)
 		case "esc":
 			m.PatternInput.Blur()
+			m.PatternInput.SetValue(m.KeyPattern) // Restore previous value on cancel
 		default:
 			var inputCmd tea.Cmd
 			m.PatternInput, inputCmd = m.PatternInput.Update(msg)
