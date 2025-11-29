@@ -31,9 +31,10 @@ type ConnectedMsg struct {
 type DisconnectedMsg struct{}
 
 type KeysLoadedMsg struct {
-	Keys   []RedisKey
-	Cursor uint64
-	Err    error
+	Keys      []RedisKey
+	Cursor    uint64
+	TotalKeys int64
+	Err       error
 }
 
 type KeyValueLoadedMsg struct {

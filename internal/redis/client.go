@@ -128,6 +128,15 @@ func (c *Client) IsCluster() bool {
 	return c.isCluster
 }
 
+// GetTotalKeys returns the total number of keys in the current database
+func (c *Client) GetTotalKeys() int64 {
+	count, err := c.client.DBSize(c.ctx).Result()
+	if err != nil {
+		return 0
+	}
+	return count
+}
+
 // ScanKeys scans keys matching a pattern
 func (c *Client) ScanKeys(pattern string, cursor uint64, count int64) ([]types.RedisKey, uint64, error) {
 	if pattern == "" {

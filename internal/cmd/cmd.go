@@ -99,7 +99,8 @@ func LoadKeysCmd(pattern string, cursor uint64, count int64) tea.Cmd {
 			return types.KeysLoadedMsg{Err: nil}
 		}
 		keys, nextCursor, err := RedisClient.ScanKeys(pattern, cursor, count)
-		return types.KeysLoadedMsg{Keys: keys, Cursor: nextCursor, Err: err}
+		totalKeys := RedisClient.GetTotalKeys()
+		return types.KeysLoadedMsg{Keys: keys, Cursor: nextCursor, TotalKeys: totalKeys, Err: err}
 	}
 }
 

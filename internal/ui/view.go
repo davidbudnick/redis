@@ -243,7 +243,12 @@ func (m Model) viewKeys() string {
 		connInfo = fmt.Sprintf(" - %s (%s:%d/db%d)", m.CurrentConn.Name, m.CurrentConn.Host, m.CurrentConn.Port, m.CurrentConn.DB)
 	}
 
-	b.WriteString(titleStyle.Render("Keys" + connInfo))
+	// Add total key count to title
+	titleText := "Keys" + connInfo
+	if m.TotalKeys > 0 {
+		titleText += fmt.Sprintf("  [Total: %d]", m.TotalKeys)
+	}
+	b.WriteString(titleStyle.Render(titleText))
 	b.WriteString("\n\n")
 
 	// Pattern filter

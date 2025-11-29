@@ -110,6 +110,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.Keys = append(m.Keys, msg.Keys...)
 			}
 			m.KeyCursor = msg.Cursor
+			m.TotalKeys = msg.TotalKeys
 		}
 		return m, nil
 

@@ -28,32 +28,33 @@ A powerful terminal user interface (TUI) for managing Redis databases, built wit
 ### Key Browser
 ```
 ┌──────────────────────────────────────────────────────────────────┐
-│  Production (localhost:6379/0)                    Keys: 1,234    │
+│  Keys - Production (localhost:6379/db0)  [Total: 1234]           │
 ├──────────────────────────────────────────────────────────────────┤
-│  Pattern: user:*                                                 │
+│  Filter: user:*                                                  │
 │                                                                  │
-│   Key                              Type      TTL        Size     │
-│  ─────────────────────────────────────────────────────────────   │
-│ ▶ user:1001                        string    -1         128B     │
-│   user:1002                        string    3600       256B     │
-│   user:1003:profile                hash      -1         512B     │
-│   user:1004:sessions               list      7200       1.2KB    │
-│   user:1005:followers              set       -1         2.4KB    │
-│   user:1006:scores                 zset      -1         890B     │
+│   Key                                      Type       TTL        │
+│  ──────────────────────────────────────────────────────────────  │
+│ ▶ user:1001                                string     ∞          │
+│   user:1002                                string     1h0m0s     │
+│   user:1003:profile                        hash       ∞          │
+│   user:1004:sessions                       list       2h0m0s     │
+│   user:1005:followers                      set        ∞          │
+│   user:1006:scores                         zset       ∞          │
 │                                                                  │
-│  [1-6 of 1234]  /:filter  a:add  d:delete  s:sort  ?:help        │
+│  j/k:nav  enter:view  a:add  d:del  /:filter  O:logs  i:info     │
 └──────────────────────────────────────────────────────────────────┘
 ```
 
 ### Key Detail View
 ```
 ┌──────────────────────────────────────────────────────────────────┐
-│  Key: user:1001                                                  │
+│                          Key Detail                              │
 ├──────────────────────────────────────────────────────────────────┤
+│  Key: user:1001                                                  │
 │  Type: string                                                    │
-│  TTL:  -1 (no expiry)                                            │
-│  Size: 128 bytes                                                 │
+│  TTL: No expiry  Memory: 128 B                                   │
 │                                                                  │
+│  Value:                                                          │
 │  ┌─────────────────────────────────────────────────────────────┐ │
 │  │ {                                                           │ │
 │  │   "id": 1001,                                               │ │
@@ -70,22 +71,22 @@ A powerful terminal user interface (TUI) for managing Redis databases, built wit
 ### Hash View
 ```
 ┌──────────────────────────────────────────────────────────────────┐
-│  Key: user:1003:profile                                          │
+│                          Key Detail                              │
 ├──────────────────────────────────────────────────────────────────┤
-│  Type: hash (5 fields)                                           │
-│  TTL:  -1 (no expiry)                                            │
+│  Key: user:1003:profile                                          │
+│  Type: hash                                                      │
+│  TTL: No expiry  Memory: 512 B                                   │
 │                                                                  │
+│  Value:                                                          │
 │  ┌─────────────────────────────────────────────────────────────┐ │
-│  │ Field          Value                                        │ │
-│  │ ─────────────────────────────────────────────────────────── │ │
-│  │ name           John Doe                                     │ │
-│  │ email          john@example.com                             │ │
-│  │ age            30                                           │ │
-│  │ city           New York                                     │ │
-│  │ status         active                                       │ │
+│  │ ◆ age: 30                                                   │ │
+│  │ ◆ city: New York                                            │ │
+│  │ ◆ email: john@example.com                                   │ │
+│  │ ◆ name: John Doe                                            │ │
+│  │ ◆ status: active                                            │ │
 │  └─────────────────────────────────────────────────────────────┘ │
 │                                                                  │
-│  a:add  x:remove  t:TTL  d:del  esc:back                         │
+│  t:TTL  d:del  r:refresh  R:rename  c:copy  a:add  x:remove      │
 └──────────────────────────────────────────────────────────────────┘
 ```
 

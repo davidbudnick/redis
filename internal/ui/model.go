@@ -31,6 +31,7 @@ type Model struct {
 	AddKeyType        types.KeyType
 	TTLInput          textinput.Model
 	ServerInfo        types.ServerInfo
+	TotalKeys         int64
 	Width             int
 	Height            int
 	Err               error
