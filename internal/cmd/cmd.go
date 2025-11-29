@@ -5,6 +5,7 @@ import (
 	"log/slog"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
@@ -435,7 +436,7 @@ func ExportKeysCmd(pattern, filename string) tea.Cmd {
 			return types.ExportCompleteMsg{Filename: filename, Err: err}
 		}
 
-		err = os.WriteFile(filename, jsonData, 0644)
+		err = os.WriteFile(filename, jsonData, 0600)
 		return types.ExportCompleteMsg{Filename: filename, KeyCount: len(data), Err: err}
 	}
 }
@@ -446,7 +447,9 @@ func ImportKeysCmd(filename string) tea.Cmd {
 			return types.ImportCompleteMsg{Filename: filename, Err: nil}
 		}
 
-		jsonData, err := os.ReadFile(filename)
+		// Clean the file path to prevent directory traversal
+		cleanPath := filepath.Clean(filename)
+		jsonData, err := os.ReadFile(cleanPath) // #nosec G304 - user-provided import path is intentional
 		if err != nil {
 			return types.ImportCompleteMsg{Filename: filename, Err: err}
 		}

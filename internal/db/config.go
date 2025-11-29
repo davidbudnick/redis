@@ -49,7 +49,7 @@ func NewConfig(configPath string) (*Config, error) {
 
 	// Ensure directory exists
 	dir := filepath.Dir(configPath)
-	if err := os.MkdirAll(dir, 0755); err != nil {
+	if err := os.MkdirAll(dir, 0750); err != nil {
 		return nil, err
 	}
 

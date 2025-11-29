@@ -109,10 +109,10 @@ func (c *Client) ConnectCluster(addrs []string, password string) error {
 // Disconnect closes the Redis connection
 func (c *Client) Disconnect() error {
 	if c.pubsub != nil {
-		c.pubsub.Close()
+		_ = c.pubsub.Close()
 	}
 	if c.keyspacePS != nil {
-		c.keyspacePS.Close()
+		_ = c.keyspacePS.Close()
 	}
 	if c.cluster != nil {
 		return c.cluster.Close()
