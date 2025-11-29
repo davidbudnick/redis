@@ -112,8 +112,6 @@ func (m Model) View() string {
 		content = m.viewValueHistory()
 	case types.ScreenKeyspaceEvents:
 		content = m.viewKeyspaceEvents()
-	case types.ScreenThemeSelect:
-		content = m.viewThemeSelect()
 	case types.ScreenJSONPath:
 		content = m.viewJSONPath()
 	case types.ScreenExpiringKeys:
@@ -1763,42 +1761,6 @@ func (m Model) viewKeyspaceEvents() string {
 	b.WriteString(helpStyle.Render("c:clear  esc:back"))
 
 	return m.renderModalWide(b.String())
-}
-
-func (m Model) viewThemeSelect() string {
-	var b strings.Builder
-
-	b.WriteString(titleStyle.Render("🎨 Select Theme"))
-	b.WriteString("\n\n")
-
-	themes := []struct {
-		name string
-		desc string
-	}{
-		{"dark", "Dark theme with high contrast"},
-		{"light", "Light theme for bright environments"},
-		{"nord", "Cool arctic colors"},
-		{"dracula", "Dark purple vampire theme"},
-	}
-
-	for _, theme := range themes {
-		prefix := "  "
-		if theme.name == m.ThemeName {
-			b.WriteString(selectedStyle.Render("▶ " + theme.name))
-			b.WriteString(" ")
-			b.WriteString(successStyle.Render("(current)"))
-		} else {
-			b.WriteString(normalStyle.Render(prefix + theme.name))
-		}
-		b.WriteString("\n")
-		b.WriteString(dimStyle.Render("    " + theme.desc))
-		b.WriteString("\n")
-	}
-
-	b.WriteString("\n")
-	b.WriteString(helpStyle.Render("j/k:nav  enter:select  esc:back"))
-
-	return m.renderModal(b.String())
 }
 
 func (m Model) viewJSONPath() string {

@@ -295,12 +295,6 @@ type CopyToClipboardMsg struct {
 	Err     error
 }
 
-type ThemeChangedMsg struct {
-	Name  string
-	Theme Theme
-	Err   error
-}
-
 type GroupsLoadedMsg struct {
 	Groups []ConnectionGroup
 	Err    error

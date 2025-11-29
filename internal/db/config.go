@@ -19,7 +19,6 @@ type Config struct {
 	RecentKeys      []types.RecentKey         `json:"recent_keys,omitempty"`
 	Templates       []types.KeyTemplate       `json:"templates,omitempty"`
 	KeyBindings     types.KeyBindings         `json:"key_bindings"`
-	ThemeName       string                    `json:"theme_name"`
 	TreeSeparator   string                    `json:"tree_separator"`
 	ValueHistory    []types.ValueHistoryEntry `json:"value_history,omitempty"`
 	MaxRecentKeys   int                       `json:"max_recent_keys"`
@@ -39,7 +38,6 @@ func NewConfig(configPath string) (*Config, error) {
 		RecentKeys:      []types.RecentKey{},
 		Templates:       defaultTemplates(),
 		KeyBindings:     types.DefaultKeyBindings(),
-		ThemeName:       "Dark",
 		TreeSeparator:   ":",
 		MaxRecentKeys:   20,
 		MaxValueHistory: 50,
@@ -485,23 +483,6 @@ func (c *Config) RemoveConnectionFromGroup(groupName string, connID int64) error
 		}
 	}
 	return os.ErrNotExist
-}
-
-// Theme management
-
-func (c *Config) GetTheme() types.Theme {
-	c.mu.RLock()
-	defer c.mu.RUnlock()
-
-	return types.GetThemeByName(c.ThemeName)
-}
-
-func (c *Config) SetTheme(name string) error {
-	c.mu.Lock()
-	defer c.mu.Unlock()
-
-	c.ThemeName = name
-	return c.save()
 }
 
 // KeyBindings management

@@ -556,14 +556,6 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 		return m, nil
 
-	case types.ThemeChangedMsg:
-		if msg.Err == nil {
-			m.Theme = msg.Theme
-			m.ThemeName = msg.Name
-			m.StatusMsg = "Theme changed to " + msg.Name
-		}
-		return m, nil
-
 	case types.GroupsLoadedMsg:
 		m.Loading = false
 		if msg.Err == nil {
@@ -679,8 +671,6 @@ func (m Model) handleKeyPress(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		return m.handleValueHistoryScreen(msg)
 	case types.ScreenKeyspaceEvents:
 		return m.handleKeyspaceEventsScreen(msg)
-	case types.ScreenThemeSelect:
-		return m.handleThemeSelectScreen(msg)
 	case types.ScreenJSONPath:
 		return m.handleJSONPathScreen(msg)
 	case types.ScreenWatchKey:
@@ -992,8 +982,6 @@ func (m Model) handleKeysScreen(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 			return m, cmd.SubscribeKeyspaceCmd("*")
 		}
 		m.StatusMsg = "Keyspace events disabled"
-	case "ctrl+t":
-		m.Screen = types.ScreenThemeSelect
 	case "W":
 		m.TreeSeparator = ":"
 		m.Screen = types.ScreenTreeView
@@ -1958,39 +1946,6 @@ func (m Model) handleKeyspaceEventsScreen(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	switch msg.String() {
 	case "c":
 		m.KeyspaceEvents = nil
-	case "esc":
-		m.Screen = types.ScreenKeys
-	}
-	return m, nil
-}
-
-func (m Model) handleThemeSelectScreen(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
-	themes := []string{"dark", "light", "nord", "dracula"}
-
-	switch msg.String() {
-	case "up", "k":
-		if m.SelectedItemIdx > 0 {
-			m.SelectedItemIdx--
-		}
-	case "down", "j":
-		if m.SelectedItemIdx < len(themes)-1 {
-			m.SelectedItemIdx++
-		}
-	case "enter":
-		newTheme := themes[m.SelectedItemIdx]
-		switch newTheme {
-		case "dark":
-			m.Theme = types.DarkTheme
-		case "light":
-			m.Theme = types.LightTheme
-		case "nord":
-			m.Theme = types.NordTheme
-		case "dracula":
-			m.Theme = types.DraculaTheme
-		}
-		m.ThemeName = newTheme
-		m.StatusMsg = "Theme changed to " + newTheme
-		m.Screen = types.ScreenKeys
 	case "esc":
 		m.Screen = types.ScreenKeys
 	}

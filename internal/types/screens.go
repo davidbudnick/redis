@@ -48,8 +48,6 @@ const (
 	ScreenBatchTTL
 	ScreenKeyTemplate
 	ScreenTemplates
-	ScreenThemeSettings
-	ScreenThemeSelect
 	ScreenJSONPath
 	ScreenKeyBindings
 	ScreenValueHistory
@@ -102,8 +100,6 @@ func (s Screen) String() string {
 		ScreenBatchTTL:             "Batch TTL",
 		ScreenKeyTemplate:          "Key Template",
 		ScreenTemplates:            "Templates",
-		ScreenThemeSettings:        "Theme Settings",
-		ScreenThemeSelect:          "Theme Select",
 		ScreenJSONPath:             "JSON Path",
 		ScreenKeyBindings:          "Key Bindings",
 		ScreenValueHistory:         "Value History",

@@ -106,28 +106,6 @@ A powerful terminal user interface (TUI) for managing Redis databases, built wit
 └────────────────────────────────────────┘
 ```
 
-### Theme Selection
-```
-┌────────────────────────────────────────┐
-│          🎨 Select Theme               │
-├────────────────────────────────────────┤
-│                                        │
-│ ▶ dark      (current)                  │
-│     Dark theme with high contrast      │
-│                                        │
-│   light                                │
-│     Light theme for bright envs        │
-│                                        │
-│   nord                                 │
-│     Cool arctic colors                 │
-│                                        │
-│   dracula                              │
-│     Dark purple vampire theme          │
-│                                        │
-│  j/k:nav  enter:select  esc:back       │
-└────────────────────────────────────────┘
-```
-
 ### Tree View
 ```
 ┌──────────────────────────────────────────────────────────────────┐
@@ -174,7 +152,6 @@ A powerful terminal user interface (TUI) for managing Redis databases, built wit
 - 👥 **Client List** - View connected Redis clients
 - 📊 **Memory Stats** - Detailed memory usage statistics
 - 🌐 **Cluster Support** - View cluster node information
-- 🎨 **Themes** - Multiple color themes (Dark, Light, Nord, Dracula)
 - ⌨️ **Customizable Keybindings** - Configure your own keyboard shortcuts
 - 📋 **Clipboard Support** - Copy values to clipboard
 - 🔐 **TLS Support** - Connect with TLS/SSL encryption
@@ -269,7 +246,6 @@ redis
 | `M` | Memory stats |
 | `C` | Cluster info |
 | `P` | Key templates |
-| `Ctrl+T` | Change theme |
 
 ### Key Detail Screen
 | Key | Action |
@@ -290,14 +266,6 @@ redis
 ## Configuration
 
 Configuration is stored in `~/.config/redis-tui/config.json`.
-
-### Themes
-
-Available themes:
-- `dark` - Dark theme with high contrast (default)
-- `light` - Light theme for bright environments
-- `nord` - Cool arctic colors
-- `dracula` - Dark purple vampire theme
 
 ### Custom Keybindings
 

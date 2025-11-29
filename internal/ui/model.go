@@ -66,10 +66,6 @@ type Model struct {
 	LogCursor          int
 	ShowingLogDetail   bool
 
-	// Theme and appearance
-	Theme     types.Theme
-	ThemeName string
-
 	// Favorites and recent keys
 	Favorites         []types.Favorite
 	RecentKeys        []types.RecentKey
@@ -248,10 +244,6 @@ func NewModel() Model {
 		DBSwitchInput:      dbSwitchInput,
 		SortBy:             "name",
 		SortAsc:            true,
-
-		// Theme defaults
-		Theme:     types.DarkTheme,
-		ThemeName: "dark",
 
 		// Favorites and recent
 		Favorites:         []types.Favorite{},
