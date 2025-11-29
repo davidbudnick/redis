@@ -114,6 +114,17 @@ func LoadKeyValueCmd(key string) tea.Cmd {
 	}
 }
 
+// LoadKeyPreviewCmd loads a key value for preview in the keys list
+func LoadKeyPreviewCmd(key string) tea.Cmd {
+	return func() tea.Msg {
+		if RedisClient == nil {
+			return types.KeyPreviewLoadedMsg{Err: nil}
+		}
+		value, err := RedisClient.GetValue(key)
+		return types.KeyPreviewLoadedMsg{Key: key, Value: value, Err: err}
+	}
+}
+
 func DeleteKeyCmd(key string) tea.Cmd {
 	return func() tea.Msg {
 		if RedisClient == nil {

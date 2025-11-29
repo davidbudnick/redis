@@ -45,6 +45,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m.handleKeysLoadedMsg(msg)
 	case types.KeyValueLoadedMsg:
 		return m.handleKeyValueLoadedMsg(msg)
+	case types.KeyPreviewLoadedMsg:
+		return m.handleKeyPreviewLoadedMsg(msg)
 	case types.KeyDeletedMsg:
 		return m.handleKeyDeletedMsg(msg)
 	case types.KeySetMsg:

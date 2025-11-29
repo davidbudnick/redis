@@ -150,6 +150,13 @@ type Model struct {
 
 	// Last tick time for accurate TTL counting
 	LastTickTime time.Time
+
+	// Key preview (shown in keys list)
+	PreviewKey   string
+	PreviewValue types.RedisValue
+
+	// Connection error (for prominent display)
+	ConnectionError string
 }
 
 func NewModel() Model {

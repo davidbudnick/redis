@@ -15,6 +15,16 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
+// silentLogger discards all log output from the Redis client
+type silentLogger struct{}
+
+func (l *silentLogger) Printf(ctx context.Context, format string, v ...interface{}) {}
+
+func init() {
+	// Disable go-redis internal logging to prevent noisy connection pool messages
+	redis.SetLogger(&silentLogger{})
+}
+
 // Client wraps the Redis client with additional functionality
 type Client struct {
 	client  *redis.Client

@@ -556,7 +556,11 @@ func (m Model) viewTestConnection() string {
 	if m.Loading {
 		b.WriteString(dimStyle.Render("Testing connection..."))
 	} else if m.TestConnResult != "" {
-		b.WriteString(normalStyle.Render(m.TestConnResult))
+		if strings.HasPrefix(m.TestConnResult, "Failed") {
+			b.WriteString(errorStyle.Render(m.TestConnResult))
+		} else {
+			b.WriteString(successStyle.Render(m.TestConnResult))
+		}
 	}
 
 	b.WriteString("\n\n")

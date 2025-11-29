@@ -301,6 +301,13 @@ type GroupsLoadedMsg struct {
 	Err    error
 }
 
+// KeyPreviewLoadedMsg is sent when a key preview value is loaded
+type KeyPreviewLoadedMsg struct {
+	Key   string
+	Value RedisValue
+	Err   error
+}
+
 // KeyComparison holds comparison result between two keys
 type KeyComparison struct {
 	Key1        string

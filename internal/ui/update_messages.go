@@ -75,9 +75,11 @@ func (m Model) handleConnectionDeletedMsg(msg types.ConnectionDeletedMsg) (tea.M
 func (m Model) handleConnectedMsg(msg types.ConnectedMsg) (tea.Model, tea.Cmd) {
 	m.Loading = false
 	if msg.Err != nil {
-		m.StatusMsg = "Connection failed: " + msg.Err.Error()
+		m.ConnectionError = msg.Err.Error()
+		m.StatusMsg = "Connection failed"
 		return m, nil
 	}
+	m.ConnectionError = ""
 	m.Screen = types.ScreenKeys
 	m.StatusMsg = "Connected"
 	return m, tea.Batch(cmd.LoadKeysCmd(m.KeyPattern, 0, 100), tickCmd())
@@ -95,9 +97,9 @@ func (m Model) handleDisconnectedMsg() (tea.Model, tea.Cmd) {
 func (m Model) handleConnectionTestMsg(msg types.ConnectionTestMsg) (tea.Model, tea.Cmd) {
 	m.Loading = false
 	if msg.Err != nil {
-		m.TestConnResult = "❌ Failed: " + msg.Err.Error()
+		m.TestConnResult = "Failed: " + msg.Err.Error()
 	} else {
-		m.TestConnResult = "✓ Connected in " + msg.Latency.String()
+		m.TestConnResult = "Connected in " + msg.Latency.String()
 	}
 	return m, nil
 }
@@ -118,11 +120,16 @@ func (m Model) handleKeysLoadedMsg(msg types.KeysLoadedMsg) (tea.Model, tea.Cmd)
 	} else {
 		if m.KeyCursor == 0 {
 			m.Keys = msg.Keys
+			m.SelectedKeyIdx = 0
 		} else {
 			m.Keys = append(m.Keys, msg.Keys...)
 		}
 		m.KeyCursor = msg.Cursor
 		m.TotalKeys = msg.TotalKeys
+		// Load preview for selected key
+		if len(m.Keys) > 0 && m.SelectedKeyIdx < len(m.Keys) {
+			return m, cmd.LoadKeyPreviewCmd(m.Keys[m.SelectedKeyIdx].Key)
+		}
 	}
 	return m, nil
 }
@@ -134,6 +141,18 @@ func (m Model) handleKeyValueLoadedMsg(msg types.KeyValueLoadedMsg) (tea.Model, 
 	} else {
 		m.CurrentValue = msg.Value
 		m.Screen = types.ScreenKeyDetail
+	}
+	return m, nil
+}
+
+func (m Model) handleKeyPreviewLoadedMsg(msg types.KeyPreviewLoadedMsg) (tea.Model, tea.Cmd) {
+	if msg.Err != nil {
+		return m, nil
+	}
+	// Only update if the key matches the currently selected key
+	if len(m.Keys) > 0 && m.SelectedKeyIdx < len(m.Keys) && m.Keys[m.SelectedKeyIdx].Key == msg.Key {
+		m.PreviewKey = msg.Key
+		m.PreviewValue = msg.Value
 	}
 	return m, nil
 }

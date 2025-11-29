@@ -17,10 +17,12 @@ func (m Model) handleConnectionsScreen(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	case "up", "k":
 		if m.SelectedConnIdx > 0 {
 			m.SelectedConnIdx--
+			m.ConnectionError = "" // Clear error on navigation
 		}
 	case "down", "j":
 		if m.SelectedConnIdx < len(m.Connections)-1 {
 			m.SelectedConnIdx++
+			m.ConnectionError = "" // Clear error on navigation
 		}
 	case "enter":
 		if len(m.Connections) > 0 && m.SelectedConnIdx < len(m.Connections) {
@@ -28,6 +30,7 @@ func (m Model) handleConnectionsScreen(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 			m.CurrentConn = &conn
 			m.Loading = true
 			m.StatusMsg = "Connecting..."
+			m.ConnectionError = "" // Clear any previous connection error
 			return m, cmd.ConnectCmd(conn.Host, conn.Port, conn.Password, conn.DB)
 		}
 	case "a", "n":
@@ -171,15 +174,27 @@ func (m Model) handleKeysScreen(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	case "up", "k":
 		if m.SelectedKeyIdx > 0 {
 			m.SelectedKeyIdx--
+			// Load preview for newly selected key
+			if len(m.Keys) > 0 && m.SelectedKeyIdx < len(m.Keys) {
+				return m, cmd.LoadKeyPreviewCmd(m.Keys[m.SelectedKeyIdx].Key)
+			}
 		}
 	case "down", "j":
 		if m.SelectedKeyIdx < len(m.Keys)-1 {
 			m.SelectedKeyIdx++
+			// Load preview for newly selected key
+			if len(m.Keys) > 0 && m.SelectedKeyIdx < len(m.Keys) {
+				return m, cmd.LoadKeyPreviewCmd(m.Keys[m.SelectedKeyIdx].Key)
+			}
 		}
 	case "pgup", "ctrl+u":
 		m.SelectedKeyIdx -= 10
 		if m.SelectedKeyIdx < 0 {
 			m.SelectedKeyIdx = 0
+		}
+		// Load preview for newly selected key
+		if len(m.Keys) > 0 && m.SelectedKeyIdx < len(m.Keys) {
+			return m, cmd.LoadKeyPreviewCmd(m.Keys[m.SelectedKeyIdx].Key)
 		}
 	case "pgdown", "ctrl+d":
 		m.SelectedKeyIdx += 10
@@ -189,11 +204,21 @@ func (m Model) handleKeysScreen(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		if m.SelectedKeyIdx < 0 {
 			m.SelectedKeyIdx = 0
 		}
+		// Load preview for newly selected key
+		if len(m.Keys) > 0 && m.SelectedKeyIdx < len(m.Keys) {
+			return m, cmd.LoadKeyPreviewCmd(m.Keys[m.SelectedKeyIdx].Key)
+		}
 	case "home", "g":
 		m.SelectedKeyIdx = 0
+		// Load preview for newly selected key
+		if len(m.Keys) > 0 {
+			return m, cmd.LoadKeyPreviewCmd(m.Keys[m.SelectedKeyIdx].Key)
+		}
 	case "end", "G":
 		if len(m.Keys) > 0 {
 			m.SelectedKeyIdx = len(m.Keys) - 1
+			// Load preview for newly selected key
+			return m, cmd.LoadKeyPreviewCmd(m.Keys[m.SelectedKeyIdx].Key)
 		}
 	case "enter":
 		if len(m.Keys) > 0 && m.SelectedKeyIdx < len(m.Keys) {

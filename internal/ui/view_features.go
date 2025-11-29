@@ -399,7 +399,7 @@ func (m Model) viewMemoryStats() string {
 func (m Model) viewClusterInfo() string {
 	var b strings.Builder
 
-	b.WriteString(titleStyle.Render("🌐 Cluster Info"))
+	b.WriteString(titleStyle.Render("Cluster Info"))
 	b.WriteString("\n\n")
 
 	if !m.ClusterEnabled {
@@ -456,7 +456,7 @@ func (m Model) viewCompareKeys() string {
 
 	if m.CompareResult != nil {
 		if m.CompareResult.Equal {
-			b.WriteString(successStyle.Render("✓ Keys are identical"))
+			b.WriteString(successStyle.Render("Keys are identical"))
 		} else {
 			b.WriteString(errorStyle.Render("✗ Keys differ"))
 			b.WriteString("\n\n")
