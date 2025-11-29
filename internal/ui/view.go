@@ -424,8 +424,21 @@ func (m Model) viewKeyDetail() string {
 		if len(m.CurrentValue.HashValue) == 0 {
 			valueContent = "(empty hash)"
 		} else {
-			for k, v := range m.CurrentValue.HashValue {
-				valueContent += fmt.Sprintf("%s: %s\n", k, formatPossibleJSON(v))
+			// Sort hash keys for consistent display
+			hashKeys := make([]string, 0, len(m.CurrentValue.HashValue))
+			for k := range m.CurrentValue.HashValue {
+				hashKeys = append(hashKeys, k)
+			}
+			sort.Strings(hashKeys)
+			for _, k := range hashKeys {
+				v := m.CurrentValue.HashValue[k]
+				formattedValue := formatPossibleJSON(v)
+				// Check if value is multi-line JSON
+				if strings.Contains(formattedValue, "\n") {
+					valueContent += fmt.Sprintf("◆ %s:\n%s\n", k, formattedValue)
+				} else {
+					valueContent += fmt.Sprintf("◆ %s: %s\n", k, formattedValue)
+				}
 			}
 		}
 	case types.KeyTypeStream:
