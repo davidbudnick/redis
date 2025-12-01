@@ -31,7 +31,11 @@ func main() {
 	m := ui.NewModel()
 	m.Logs = &logs
 
+	sendFunc := func(msg tea.Msg) {}
+	m.SendFunc = &sendFunc
+
 	p := tea.NewProgram(m, tea.WithAltScreen())
+	*m.SendFunc = p.Send
 	if _, err := p.Run(); err != nil {
 		log.Fatal(err)
 	}

@@ -40,6 +40,8 @@ type Model struct {
 	ConfirmType       string
 	ConfirmData       interface{}
 	Logs              *[]string
+	SendFunc          *func(tea.Msg)
+	PendingSelectKey  string
 
 	// New fields for additional features
 	EditValueInput     textinput.Model

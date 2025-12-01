@@ -155,13 +155,21 @@ func (m Model) handleTickMsg() (tea.Model, tea.Cmd) {
 	}
 	m.LastTickTime = now
 
-	var activeKeys []types.RedisKey
+	// Count expired keys first to avoid unnecessary allocations
+	expiredCount := 0
 	for _, k := range m.Keys {
-		if k.TTL != 0 {
-			activeKeys = append(activeKeys, k)
+		if k.TTL == 0 {
+			expiredCount++
 		}
 	}
-	if len(activeKeys) != len(m.Keys) {
+
+	if expiredCount > 0 {
+		activeKeys := make([]types.RedisKey, 0, len(m.Keys)-expiredCount)
+		for _, k := range m.Keys {
+			if k.TTL != 0 {
+				activeKeys = append(activeKeys, k)
+			}
+		}
 		m.Keys = activeKeys
 		if m.SelectedKeyIdx >= len(m.Keys) && m.SelectedKeyIdx > 0 {
 			m.SelectedKeyIdx = len(m.Keys) - 1

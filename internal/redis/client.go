@@ -640,7 +640,9 @@ func (c *Client) getTopKeysByMemory(limit int) []types.KeyMemory {
 		memory int64
 	}
 
-	var allKeys []keyMem
+	// Pre-allocate with reasonable capacity to reduce allocations
+	maxSamples := limit * 5
+	allKeys := make([]keyMem, 0, maxSamples)
 	var cursor uint64
 
 	for {
@@ -660,10 +662,14 @@ func (c *Client) getTopKeysByMemory(limit int) []types.KeyMemory {
 				typ:    types.KeyType(keyType),
 				memory: mem,
 			})
+			// Break early if we have enough samples
+			if len(allKeys) >= maxSamples {
+				break
+			}
 		}
 
 		cursor = nextCursor
-		if cursor == 0 || len(allKeys) > 1000 {
+		if cursor == 0 || len(allKeys) >= maxSamples {
 			break
 		}
 	}
@@ -1103,12 +1109,20 @@ func (c *Client) GetKeyPrefixes(separator string, maxDepth int) ([]string, error
 
 // SubscribeKeyspace subscribes to keyspace notifications
 func (c *Client) SubscribeKeyspace(pattern string, handler func(types.KeyspaceEvent)) error {
-	c.client.ConfigSet(c.ctx, "notify-keyspace-events", "KEA")
+	// Enable keyspace notifications (may fail on managed Redis, but we try)
+	_ = c.client.ConfigSet(c.ctx, "notify-keyspace-events", "KEA").Err()
+
+	// Close existing subscription if any to prevent leaks
+	if c.keyspacePS != nil {
+		_ = c.keyspacePS.Close()
+		c.keyspacePS = nil
+	}
+
+	// Clear old handlers to prevent memory leak and duplicate events
+	c.eventHandlers = []func(types.KeyspaceEvent){handler}
 
 	channel := "__keyspace@" + strconv.Itoa(c.db) + "__:" + pattern
 	c.keyspacePS = c.client.PSubscribe(c.ctx, channel)
-
-	c.eventHandlers = append(c.eventHandlers, handler)
 
 	go func() {
 		ch := c.keyspacePS.Channel()

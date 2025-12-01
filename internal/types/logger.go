@@ -21,7 +21,10 @@ func (w LogWriter) Write(p []byte) (n int, err error) {
 	}
 	*w.Logs = append(*w.Logs, logStr)
 	if len(*w.Logs) > MaxLogs {
-		*w.Logs = (*w.Logs)[len(*w.Logs)-MaxLogs:]
+		// Create a new slice to allow GC of the old backing array
+		newLogs := make([]string, MaxLogs)
+		copy(newLogs, (*w.Logs)[len(*w.Logs)-MaxLogs:])
+		*w.Logs = newLogs
 	}
 	return len(p), nil
 }

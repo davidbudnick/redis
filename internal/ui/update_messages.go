@@ -1,6 +1,8 @@
 package ui
 
 import (
+	"fmt"
+	"log/slog"
 	"strconv"
 
 	"github.com/davidbudnick/redis/internal/cmd"
@@ -13,6 +15,7 @@ import (
 func (m Model) handleConnectionsLoadedMsg(msg types.ConnectionsLoadedMsg) (tea.Model, tea.Cmd) {
 	m.Loading = false
 	if msg.Err != nil {
+		slog.Error("Failed to load connections", "error", msg.Err)
 		m.Err = msg.Err
 		m.StatusMsg = "Error: " + msg.Err.Error()
 	} else {
@@ -25,6 +28,7 @@ func (m Model) handleConnectionsLoadedMsg(msg types.ConnectionsLoadedMsg) (tea.M
 func (m Model) handleConnectionAddedMsg(msg types.ConnectionAddedMsg) (tea.Model, tea.Cmd) {
 	m.Loading = false
 	if msg.Err != nil {
+		slog.Error("Failed to add connection", "error", msg.Err)
 		m.StatusMsg = "Error: " + msg.Err.Error()
 	} else {
 		m.Connections = append(m.Connections, msg.Connection)
@@ -75,6 +79,7 @@ func (m Model) handleConnectionDeletedMsg(msg types.ConnectionDeletedMsg) (tea.M
 func (m Model) handleConnectedMsg(msg types.ConnectedMsg) (tea.Model, tea.Cmd) {
 	m.Loading = false
 	if msg.Err != nil {
+		slog.Error("Failed to connect", "error", msg.Err)
 		m.ConnectionError = msg.Err.Error()
 		m.StatusMsg = "Connection failed"
 		return m, nil
@@ -82,7 +87,11 @@ func (m Model) handleConnectedMsg(msg types.ConnectedMsg) (tea.Model, tea.Cmd) {
 	m.ConnectionError = ""
 	m.Screen = types.ScreenKeys
 	m.StatusMsg = "Connected"
-	return m, tea.Batch(cmd.LoadKeysCmd(m.KeyPattern, 0, 100), tickCmd())
+	var sendFunc func(tea.Msg)
+	if m.SendFunc != nil {
+		sendFunc = *m.SendFunc
+	}
+	return m, tea.Batch(cmd.LoadKeysCmd(m.KeyPattern, 0, 1000), cmd.SubscribeKeyspaceCmd("*", sendFunc), tickCmd())
 }
 
 func (m Model) handleDisconnectedMsg() (tea.Model, tea.Cmd) {
@@ -91,7 +100,7 @@ func (m Model) handleDisconnectedMsg() (tea.Model, tea.Cmd) {
 	m.CurrentKey = nil
 	m.Screen = types.ScreenConnections
 	m.StatusMsg = "Disconnected"
-	return m, nil
+	return m, cmd.UnsubscribeKeyspaceCmd()
 }
 
 func (m Model) handleConnectionTestMsg(msg types.ConnectionTestMsg) (tea.Model, tea.Cmd) {
@@ -116,6 +125,7 @@ func (m Model) handleGroupsLoadedMsg(msg types.GroupsLoadedMsg) (tea.Model, tea.
 func (m Model) handleKeysLoadedMsg(msg types.KeysLoadedMsg) (tea.Model, tea.Cmd) {
 	m.Loading = false
 	if msg.Err != nil {
+		slog.Error("Failed to load keys", "error", msg.Err)
 		m.StatusMsg = "Error: " + msg.Err.Error()
 	} else {
 		if m.KeyCursor == 0 {
@@ -137,6 +147,7 @@ func (m Model) handleKeysLoadedMsg(msg types.KeysLoadedMsg) (tea.Model, tea.Cmd)
 func (m Model) handleKeyValueLoadedMsg(msg types.KeyValueLoadedMsg) (tea.Model, tea.Cmd) {
 	m.Loading = false
 	if msg.Err != nil {
+		slog.Error("Failed to load key value", "key", msg.Key, "error", msg.Err)
 		m.StatusMsg = "Error: " + msg.Err.Error()
 	} else {
 		m.CurrentValue = msg.Value
@@ -173,6 +184,7 @@ func (m Model) handleKeyDeletedMsg(msg types.KeyDeletedMsg) (tea.Model, tea.Cmd)
 		m.StatusMsg = "Key deleted"
 		m.Screen = types.ScreenKeys
 	} else {
+		slog.Error("Failed to delete key", "key", msg.Key, "error", msg.Err)
 		m.StatusMsg = "Error: " + msg.Err.Error()
 	}
 	return m, nil
@@ -181,13 +193,14 @@ func (m Model) handleKeyDeletedMsg(msg types.KeyDeletedMsg) (tea.Model, tea.Cmd)
 func (m Model) handleKeySetMsg(msg types.KeySetMsg) (tea.Model, tea.Cmd) {
 	m.Loading = false
 	if msg.Err != nil {
+		slog.Error("Failed to set key", "key", msg.Key, "error", msg.Err)
 		m.StatusMsg = "Error: " + msg.Err.Error()
 		return m, nil
 	}
 	m.StatusMsg = "Key saved"
 	m.Screen = types.ScreenKeys
 	m.resetAddKeyInputs()
-	return m, cmd.LoadKeysCmd(m.KeyPattern, 0, 100)
+	return m, cmd.LoadKeysCmd(m.KeyPattern, 0, 1000)
 }
 
 func (m Model) handleKeyRenamedMsg(msg types.KeyRenamedMsg) (tea.Model, tea.Cmd) {
@@ -219,7 +232,7 @@ func (m Model) handleKeyCopiedMsg(msg types.KeyCopiedMsg) (tea.Model, tea.Cmd) {
 	m.StatusMsg = "Key copied to " + msg.DestKey
 	m.Screen = types.ScreenKeyDetail
 	m.KeyCursor = 0
-	return m, cmd.LoadKeysCmd(m.KeyPattern, 0, 100)
+	return m, cmd.LoadKeysCmd(m.KeyPattern, 0, 1000)
 }
 
 // Value message handlers
@@ -414,7 +427,15 @@ func (m Model) handlePublishResultMsg(msg types.PublishResultMsg) (tea.Model, te
 func (m Model) handleKeyspaceEventMsg(msg types.KeyspaceEventMsg) (tea.Model, tea.Cmd) {
 	m.KeyspaceEvents = append(m.KeyspaceEvents, msg.Event)
 	if len(m.KeyspaceEvents) > 100 {
-		m.KeyspaceEvents = m.KeyspaceEvents[1:]
+		// Create new slice to allow GC of old backing array (prevents memory leak)
+		newEvents := make([]types.KeyspaceEvent, 99)
+		copy(newEvents, m.KeyspaceEvents[1:])
+		m.KeyspaceEvents = newEvents
+	}
+	// Refresh keys if a key was set or deleted
+	if msg.Event.Event == "set" || msg.Event.Event == "del" {
+		m.StatusMsg = fmt.Sprintf("Key %s: %s", msg.Event.Event, msg.Event.Key)
+		return m, cmd.LoadKeysCmd(m.KeyPattern, 0, 1000)
 	}
 	return m, nil
 }

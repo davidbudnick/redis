@@ -41,8 +41,11 @@ func (m Model) viewHelp() string {
 		{
 			title: "Keys",
 			bindings: [][2]string{
+				{"enter", "View key detail"},
 				{"a", "Add key"},
 				{"d", "Delete key"},
+				{"r", "Refresh keys"},
+				{"l", "Load more keys"},
 				{"/", "Filter by pattern"},
 				{"s/S", "Sort / Toggle direction"},
 				{"v", "Search by value"},

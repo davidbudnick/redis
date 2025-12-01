@@ -668,16 +668,27 @@ func WatchKeyTickCmd() tea.Cmd {
 }
 
 // Keyspace events
-func SubscribeKeyspaceCmd(pattern string) tea.Cmd {
+func SubscribeKeyspaceCmd(pattern string, sendFunc func(tea.Msg)) tea.Cmd {
 	return func() tea.Msg {
 		if RedisClient == nil {
-			return types.KeyspaceSubscribedMsg{Pattern: pattern, Err: nil}
+			return types.KeyspaceSubscribedMsg{Err: nil}
 		}
-		// The handler will send events through a channel
+		// The handler will send events through the sendFunc
 		err := RedisClient.SubscribeKeyspace(pattern, func(event types.KeyspaceEvent) {
-			// Events are handled in the client
+			if sendFunc != nil {
+				sendFunc(types.KeyspaceEventMsg{Event: event})
+			}
 		})
 		return types.KeyspaceSubscribedMsg{Pattern: pattern, Err: err}
+	}
+}
+
+func UnsubscribeKeyspaceCmd() tea.Cmd {
+	return func() tea.Msg {
+		if RedisClient != nil {
+			_ = RedisClient.UnsubscribeKeyspace()
+		}
+		return nil
 	}
 }
 

@@ -158,7 +158,7 @@ func (m Model) handleKeysScreen(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 			m.PatternInput.Blur()
 			m.KeyCursor = 0
 			m.Loading = true
-			return m, cmd.LoadKeysCmd(m.KeyPattern, 0, 100)
+			return m, cmd.LoadKeysCmd(m.KeyPattern, 0, 1000)
 		case "esc":
 			m.PatternInput.Blur()
 			m.PatternInput.SetValue(m.KeyPattern) // Restore previous value on cancel
@@ -240,11 +240,11 @@ func (m Model) handleKeysScreen(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	case "r":
 		m.Loading = true
 		m.KeyCursor = 0
-		return m, cmd.LoadKeysCmd(m.KeyPattern, 0, 100)
+		return m, cmd.LoadKeysCmd(m.KeyPattern, 0, 1000)
 	case "l":
 		if m.KeyCursor > 0 {
 			m.Loading = true
-			return m, cmd.LoadKeysCmd(m.KeyPattern, m.KeyCursor, 100)
+			return m, cmd.LoadKeysCmd(m.KeyPattern, m.KeyCursor, 1000)
 		}
 	case "i":
 		return m, cmd.LoadServerInfoCmd()
@@ -339,7 +339,11 @@ func (m Model) handleKeysScreen(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	case "ctrl+e":
 		m.KeyspaceSubActive = !m.KeyspaceSubActive
 		if m.KeyspaceSubActive {
-			return m, cmd.SubscribeKeyspaceCmd("*")
+			var sendFunc func(tea.Msg)
+			if m.SendFunc != nil {
+				sendFunc = *m.SendFunc
+			}
+			return m, cmd.SubscribeKeyspaceCmd("*", sendFunc)
 		}
 		m.StatusMsg = "Keyspace events disabled"
 	case "W":
