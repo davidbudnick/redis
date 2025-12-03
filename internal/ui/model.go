@@ -157,180 +157,120 @@ type Model struct {
 	PreviewKey   string
 	PreviewValue types.RedisValue
 
+	// Live metrics dashboard
+	LiveMetrics       *types.LiveMetrics
+	LiveMetricsActive bool
+
 	// Connection error (for prominent display)
 	ConnectionError string
+
+	// Lazy initialization flag
+	inputsInitialized bool
 }
 
 func NewModel() Model {
-	patternInput := textinput.New()
-	patternInput.Placeholder = "Pattern (e.g., user:*)"
-	patternInput.Width = 30
-
-	ttlInput := textinput.New()
-	ttlInput.Placeholder = "TTL in seconds (0 = no expiry)"
-	ttlInput.Width = 30
-
-	editValueInput := textinput.New()
-	editValueInput.Placeholder = "New value"
-	editValueInput.Width = 50
-
-	renameInput := textinput.New()
-	renameInput.Placeholder = "New key name"
-	renameInput.Width = 40
-
-	copyInput := textinput.New()
-	copyInput.Placeholder = "Destination key name"
-	copyInput.Width = 40
-
-	searchValueInput := textinput.New()
-	searchValueInput.Placeholder = "Search for value..."
-	searchValueInput.Width = 40
-
-	exportInput := textinput.New()
-	exportInput.Placeholder = "export.json"
-	exportInput.Width = 40
-	exportInput.SetValue("export.json")
-
-	importInput := textinput.New()
-	importInput.Placeholder = "import.json"
-	importInput.Width = 40
-
-	luaScriptInput := textinput.New()
-	luaScriptInput.Placeholder = "return redis.call('PING')"
-	luaScriptInput.Width = 60
-
-	dbSwitchInput := textinput.New()
-	dbSwitchInput.Placeholder = "Database number (0-15)"
-	dbSwitchInput.Width = 30
-
-	// New feature inputs
-	bulkDeleteInput := textinput.New()
-	bulkDeleteInput.Placeholder = "Pattern to delete (e.g., cache:*)"
-	bulkDeleteInput.Width = 40
-
-	batchTTLInput := textinput.New()
-	batchTTLInput.Placeholder = "TTL in seconds"
-	batchTTLInput.Width = 20
-
-	batchTTLPattern := textinput.New()
-	batchTTLPattern.Placeholder = "Key pattern (e.g., session:*)"
-	batchTTLPattern.Width = 40
-
-	regexSearchInput := textinput.New()
-	regexSearchInput.Placeholder = "Regex pattern (e.g., user:\\d+)"
-	regexSearchInput.Width = 40
-
-	fuzzySearchInput := textinput.New()
-	fuzzySearchInput.Placeholder = "Fuzzy search term..."
-	fuzzySearchInput.Width = 40
-
-	compareKey1Input := textinput.New()
-	compareKey1Input.Placeholder = "First key to compare"
-	compareKey1Input.Width = 40
-
-	compareKey2Input := textinput.New()
-	compareKey2Input.Placeholder = "Second key to compare"
-	compareKey2Input.Width = 40
-
-	jsonPathInput := textinput.New()
-	jsonPathInput.Placeholder = "JSON path (e.g., $.users[0].name)"
-	jsonPathInput.Width = 50
-
+	// Only create essential inputs upfront - others are created lazily when needed
 	return Model{
-		Screen:             types.ScreenConnections,
-		Connections:        []types.Connection{},
-		ConnInputs:         createConnectionInputs(),
-		AddKeyInputs:       createAddKeyInputs(),
-		AddKeyType:         types.KeyTypeString,
-		PatternInput:       patternInput,
-		TTLInput:           ttlInput,
-		Keys:               []types.RedisKey{},
-		EditValueInput:     editValueInput,
-		AddCollectionInput: createAddCollectionInputs(),
-		RenameInput:        renameInput,
-		CopyInput:          copyInput,
-		SearchValueInput:   searchValueInput,
-		ExportInput:        exportInput,
-		ImportInput:        importInput,
-		LuaScriptInput:     luaScriptInput,
-		PubSubInput:        createPubSubInputs(),
-		DBSwitchInput:      dbSwitchInput,
-		SortBy:             "name",
-		SortAsc:            true,
-
-		// Favorites and recent
-		Favorites:         []types.Favorite{},
-		RecentKeys:        []types.RecentKey{},
-		SelectedFavIdx:    0,
-		SelectedRecentIdx: 0,
-
-		// Tree view
-		TreeNodes:       []types.TreeNode{},
-		TreeExpanded:    make(map[string]bool),
-		TreeSeparator:   ":",
-		SelectedTreeIdx: 0,
-
-		// Bulk operations
-		BulkDeleteInput:   bulkDeleteInput,
-		BulkDeletePreview: []string{},
+		Screen:            types.ScreenConnections,
+		Connections:       []types.Connection{},
+		ConnInputs:        createConnectionInputs(),
+		Keys:              []types.RedisKey{},
+		AddKeyType:        types.KeyTypeString,
+		SortBy:            "name",
+		SortAsc:           true,
+		TreeExpanded:      make(map[string]bool),
+		TreeSeparator:     ":",
 		SelectedBulkKeys:  make(map[string]bool),
-
-		// Batch TTL
-		BatchTTLInput:   batchTTLInput,
-		BatchTTLPattern: batchTTLPattern,
-		BatchTTLPreview: []string{},
-
-		// Search
-		RegexSearchInput: regexSearchInput,
-		FuzzySearchInput: fuzzySearchInput,
-		SearchResults:    []types.RedisKey{},
-
-		// Watch mode
-		WatchActive:   false,
-		WatchInterval: time.Second * 2,
-
-		// Client list and memory
-		ClientList:        []types.ClientInfo{},
-		SelectedClientIdx: 0,
-
-		// Cluster
-		ClusterNodes:    []types.ClusterNode{},
-		ClusterEnabled:  false,
-		SelectedNodeIdx: 0,
-
-		// Compare keys
-		CompareKey1Input: compareKey1Input,
-		CompareKey2Input: compareKey2Input,
-		CompareFocusIdx:  0,
-
-		// Templates
-		Templates:           []types.KeyTemplate{},
-		SelectedTemplateIdx: 0,
-		TemplateInputs:      []textinput.Model{},
-		TemplateFocusIdx:    0,
-
-		// JSON path
-		JSONPathInput: jsonPathInput,
-
-		// Keybindings
-		KeyBindings: types.DefaultKeyBindings(),
-
-		// Value history
-		ValueHistory:       []types.ValueHistoryEntry{},
-		SelectedHistoryIdx: 0,
-
-		// Keyspace events
-		KeyspaceEvents:    []types.KeyspaceEvent{},
-		KeyspaceSubActive: false,
-
-		// Connection groups
-		ConnectionGroups: []types.ConnectionGroup{},
-		SelectedGroupIdx: 0,
-
-		// Expiring keys
-		ExpiringKeys:    []types.RedisKey{},
-		ExpiryThreshold: 3600, // 1 hour default
+		WatchInterval:     time.Second * 2,
+		KeyBindings:       types.DefaultKeyBindings(),
+		ExpiryThreshold:   300,
+		inputsInitialized: false,
 	}
+}
+
+// ensureInputsInitialized lazily initializes text inputs when first needed
+func (m *Model) ensureInputsInitialized() {
+	if m.inputsInitialized {
+		return
+	}
+	m.inputsInitialized = true
+
+	m.PatternInput = textinput.New()
+	m.PatternInput.Placeholder = "Pattern (e.g., user:*)"
+	m.PatternInput.Width = 30
+
+	m.TTLInput = textinput.New()
+	m.TTLInput.Placeholder = "TTL in seconds (0 = no expiry)"
+	m.TTLInput.Width = 30
+
+	m.EditValueInput = textinput.New()
+	m.EditValueInput.Placeholder = "New value"
+	m.EditValueInput.Width = 50
+
+	m.RenameInput = textinput.New()
+	m.RenameInput.Placeholder = "New key name"
+	m.RenameInput.Width = 40
+
+	m.CopyInput = textinput.New()
+	m.CopyInput.Placeholder = "Destination key name"
+	m.CopyInput.Width = 40
+
+	m.SearchValueInput = textinput.New()
+	m.SearchValueInput.Placeholder = "Search for value..."
+	m.SearchValueInput.Width = 40
+
+	m.ExportInput = textinput.New()
+	m.ExportInput.Placeholder = "export.json"
+	m.ExportInput.Width = 40
+	m.ExportInput.SetValue("export.json")
+
+	m.ImportInput = textinput.New()
+	m.ImportInput.Placeholder = "import.json"
+	m.ImportInput.Width = 40
+
+	m.LuaScriptInput = textinput.New()
+	m.LuaScriptInput.Placeholder = "return redis.call('PING')"
+	m.LuaScriptInput.Width = 60
+
+	m.DBSwitchInput = textinput.New()
+	m.DBSwitchInput.Placeholder = "Database number (0-15)"
+	m.DBSwitchInput.Width = 30
+
+	m.BulkDeleteInput = textinput.New()
+	m.BulkDeleteInput.Placeholder = "Pattern to delete (e.g., cache:*)"
+	m.BulkDeleteInput.Width = 40
+
+	m.BatchTTLInput = textinput.New()
+	m.BatchTTLInput.Placeholder = "TTL in seconds"
+	m.BatchTTLInput.Width = 20
+
+	m.BatchTTLPattern = textinput.New()
+	m.BatchTTLPattern.Placeholder = "Key pattern (e.g., session:*)"
+	m.BatchTTLPattern.Width = 40
+
+	m.RegexSearchInput = textinput.New()
+	m.RegexSearchInput.Placeholder = "Regex pattern (e.g., user:\\d+)"
+	m.RegexSearchInput.Width = 40
+
+	m.FuzzySearchInput = textinput.New()
+	m.FuzzySearchInput.Placeholder = "Fuzzy search term..."
+	m.FuzzySearchInput.Width = 40
+
+	m.CompareKey1Input = textinput.New()
+	m.CompareKey1Input.Placeholder = "First key to compare"
+	m.CompareKey1Input.Width = 40
+
+	m.CompareKey2Input = textinput.New()
+	m.CompareKey2Input.Placeholder = "Second key to compare"
+	m.CompareKey2Input.Width = 40
+
+	m.JSONPathInput = textinput.New()
+	m.JSONPathInput.Placeholder = "JSON path (e.g., $.users[0].name)"
+	m.JSONPathInput.Width = 50
+
+	m.AddKeyInputs = createAddKeyInputs()
+	m.AddCollectionInput = createAddCollectionInputs()
+	m.PubSubInput = createPubSubInputs()
 }
 
 func createConnectionInputs() []textinput.Model {

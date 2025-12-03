@@ -713,3 +713,21 @@ func CopyToClipboardCmd(content string) tea.Cmd {
 		return types.ClipboardCopiedMsg{Content: content, Err: err}
 	}
 }
+
+// GetLiveMetricsCmd fetches real-time metrics from Redis
+func GetLiveMetricsCmd() tea.Cmd {
+	return func() tea.Msg {
+		if RedisClient == nil {
+			return types.LiveMetricsMsg{Err: nil}
+		}
+		data, err := RedisClient.GetLiveMetrics()
+		return types.LiveMetricsMsg{Data: data, Err: err}
+	}
+}
+
+// LiveMetricsTickCmd returns a command that triggers metrics refresh
+func LiveMetricsTickCmd() tea.Cmd {
+	return tea.Tick(time.Second, func(t time.Time) tea.Msg {
+		return types.LiveMetricsTickMsg{}
+	})
+}

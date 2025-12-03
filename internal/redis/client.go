@@ -690,6 +690,59 @@ func (c *Client) getTopKeysByMemory(limit int) []types.KeyMemory {
 	return result
 }
 
+// GetLiveMetrics fetches real-time metrics from Redis INFO command
+func (c *Client) GetLiveMetrics() (types.LiveMetricsData, error) {
+	var data types.LiveMetricsData
+	data.Timestamp = time.Now()
+
+	// Get stats info
+	info, err := c.client.Info(c.ctx, "stats", "memory", "clients", "cpu").Result()
+	if err != nil {
+		return data, err
+	}
+
+	for _, line := range strings.Split(info, "\n") {
+		parts := strings.SplitN(strings.TrimSpace(line), ":", 2)
+		if len(parts) != 2 {
+			continue
+		}
+
+		key, value := parts[0], parts[1]
+		switch key {
+		case "instantaneous_ops_per_sec":
+			data.OpsPerSec, _ = strconv.ParseFloat(value, 64)
+		case "used_memory":
+			data.UsedMemoryBytes, _ = strconv.ParseInt(value, 10, 64)
+		case "connected_clients":
+			data.ConnectedClients, _ = strconv.ParseInt(value, 10, 64)
+		case "blocked_clients":
+			data.BlockedClients, _ = strconv.ParseInt(value, 10, 64)
+		case "keyspace_hits":
+			data.KeyspaceHits, _ = strconv.ParseInt(value, 10, 64)
+		case "keyspace_misses":
+			data.KeyspaceMisses, _ = strconv.ParseInt(value, 10, 64)
+		case "expired_keys":
+			data.ExpiredKeys, _ = strconv.ParseInt(value, 10, 64)
+		case "evicted_keys":
+			data.EvictedKeys, _ = strconv.ParseInt(value, 10, 64)
+		case "instantaneous_input_kbps":
+			data.InputKbps, _ = strconv.ParseFloat(value, 64)
+		case "instantaneous_output_kbps":
+			data.OutputKbps, _ = strconv.ParseFloat(value, 64)
+		case "used_cpu_sys":
+			data.UsedCPUSys, _ = strconv.ParseFloat(value, 64)
+		case "used_cpu_user":
+			data.UsedCPUUser, _ = strconv.ParseFloat(value, 64)
+		case "total_connections_received":
+			data.TotalConnections, _ = strconv.ParseInt(value, 10, 64)
+		case "rejected_connections":
+			data.RejectedConns, _ = strconv.ParseInt(value, 10, 64)
+		}
+	}
+
+	return data, nil
+}
+
 // FlushDB flushes the current database
 func (c *Client) FlushDB() error {
 	return c.client.FlushDB(c.ctx).Err()

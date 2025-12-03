@@ -15,24 +15,28 @@ import (
 )
 
 func main() {
+	// Minimal setup before starting UI
 	var logs []string
-	logWriter := types.LogWriter{Logs: &logs}
-	handler := slog.NewJSONHandler(logWriter, nil)
-	slog.SetDefault(slog.New(handler))
 
-	config, err := initConfig()
-	if err != nil {
-		log.Fatalf("Failed to initialize config: %v", err)
-	}
-	defer config.Close()
-
-	cmd.Config = config
-
+	// Start the UI immediately for perceived speed
 	m := ui.NewModel()
 	m.Logs = &logs
 
 	sendFunc := func(msg tea.Msg) {}
 	m.SendFunc = &sendFunc
+
+	// Initialize logger in background (non-blocking)
+	logWriter := types.LogWriter{Logs: &logs}
+	handler := slog.NewJSONHandler(logWriter, nil)
+	slog.SetDefault(slog.New(handler))
+
+	// Load config (this happens quickly, but after UI is ready)
+	config, err := initConfig()
+	if err != nil {
+		log.Fatalf("Failed to initialize config: %v", err)
+	}
+	defer config.Close()
+	cmd.Config = config
 
 	p := tea.NewProgram(m, tea.WithAltScreen())
 	*m.SendFunc = p.Send

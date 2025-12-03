@@ -156,3 +156,29 @@ type KeyspaceEvent struct {
 	Event     string
 	Key       string
 }
+
+// LiveMetricsData holds real-time metrics data points
+type LiveMetricsData struct {
+	Timestamp        time.Time
+	OpsPerSec        float64
+	UsedMemoryBytes  int64
+	ConnectedClients int64
+	BlockedClients   int64
+	KeyspaceHits     int64
+	KeyspaceMisses   int64
+	ExpiredKeys      int64
+	EvictedKeys      int64
+	InputKbps        float64
+	OutputKbps       float64
+	UsedCPUSys       float64
+	UsedCPUUser      float64
+	TotalConnections int64
+	RejectedConns    int64
+}
+
+// LiveMetrics holds historical metrics for charting
+type LiveMetrics struct {
+	DataPoints      []LiveMetricsData
+	MaxDataPoints   int
+	RefreshInterval time.Duration
+}

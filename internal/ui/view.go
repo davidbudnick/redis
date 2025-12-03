@@ -51,6 +51,7 @@ func (m Model) getScreenView() string {
 		types.ScreenKeyspaceEvents:       m.viewKeyspaceEvents,
 		types.ScreenJSONPath:             m.viewJSONPath,
 		types.ScreenExpiringKeys:         m.viewExpiringKeys,
+		types.ScreenLiveMetrics:          m.viewLiveMetrics,
 	}
 
 	if viewFunc, ok := viewMap[m.Screen]; ok {
@@ -71,7 +72,10 @@ func (m Model) View() string {
 	status := m.getStatusBar()
 
 	fullContent := content + "\n\n" + status
-	return lipgloss.Place(m.Width, m.Height, lipgloss.Center, lipgloss.Center, fullContent)
+
+	// Use PlaceHorizontal and PlaceVertical with whitespace to ensure full screen clear
+	return lipgloss.Place(m.Width, m.Height, lipgloss.Center, lipgloss.Center, fullContent,
+		lipgloss.WithWhitespaceChars(" "))
 }
 
 func (m Model) getStatusBar() string {

@@ -53,6 +53,7 @@ const (
 	ScreenValueHistory
 	ScreenKeyspaceEvents
 	ScreenExpiringKeys
+	ScreenLiveMetrics
 )
 
 // ScreenName returns a human-readable name for the screen
@@ -105,6 +106,7 @@ func (s Screen) String() string {
 		ScreenValueHistory:         "Value History",
 		ScreenKeyspaceEvents:       "Keyspace Events",
 		ScreenExpiringKeys:         "Expiring Keys",
+		ScreenLiveMetrics:          "Live Metrics",
 	}
 	if name, ok := names[s]; ok {
 		return name

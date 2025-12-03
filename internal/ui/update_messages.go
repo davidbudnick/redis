@@ -84,6 +84,8 @@ func (m Model) handleConnectedMsg(msg types.ConnectedMsg) (tea.Model, tea.Cmd) {
 		m.StatusMsg = "Connection failed"
 		return m, nil
 	}
+	// Initialize inputs lazily on first connection
+	m.ensureInputsInitialized()
 	m.ConnectionError = ""
 	m.Screen = types.ScreenKeys
 	m.StatusMsg = "Connected"
@@ -590,6 +592,38 @@ func (m Model) handleClipboardCopiedMsg(msg types.ClipboardCopiedMsg) (tea.Model
 		m.StatusMsg = "Copy failed: " + msg.Err.Error()
 	} else {
 		m.StatusMsg = "Copied to clipboard"
+	}
+	return m, nil
+}
+
+// Live metrics handlers
+func (m Model) handleLiveMetricsMsg(msg types.LiveMetricsMsg) (tea.Model, tea.Cmd) {
+	if msg.Err != nil {
+		m.StatusMsg = "Metrics error: " + msg.Err.Error()
+		return m, nil
+	}
+
+	if m.LiveMetrics == nil {
+		m.LiveMetrics = &types.LiveMetrics{
+			MaxDataPoints: 60, // 1 minute of history
+		}
+	}
+
+	// Add new data point
+	m.LiveMetrics.DataPoints = append(m.LiveMetrics.DataPoints, msg.Data)
+
+	// Keep only last MaxDataPoints
+	if len(m.LiveMetrics.DataPoints) > m.LiveMetrics.MaxDataPoints {
+		m.LiveMetrics.DataPoints = m.LiveMetrics.DataPoints[1:]
+	}
+
+	return m, nil
+}
+
+func (m Model) handleLiveMetricsTickMsg() (tea.Model, tea.Cmd) {
+	// Only continue refreshing if we're on the live metrics screen
+	if m.Screen == types.ScreenLiveMetrics && m.LiveMetricsActive {
+		return m, tea.Batch(cmd.GetLiveMetricsCmd(), cmd.LiveMetricsTickCmd())
 	}
 	return m, nil
 }

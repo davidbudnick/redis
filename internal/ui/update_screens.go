@@ -315,6 +315,17 @@ func (m Model) handleKeysScreen(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	case "ctrl+l":
 		m.Loading = true
 		return m, cmd.GetClientListCmd()
+	case "m":
+		// Live metrics dashboard
+		m.LiveMetricsActive = true
+		m.Screen = types.ScreenLiveMetrics
+		if m.LiveMetrics == nil {
+			m.LiveMetrics = &types.LiveMetrics{
+				MaxDataPoints:   60, // 1 minute of history
+				RefreshInterval: time.Second,
+			}
+		}
+		return m, tea.Batch(cmd.GetLiveMetricsCmd(), cmd.LiveMetricsTickCmd())
 	case "M":
 		m.Loading = true
 		return m, cmd.GetMemoryStatsCmd()
@@ -1204,6 +1215,21 @@ func (m Model) handleMemoryStatsScreen(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		return m, cmd.GetMemoryStatsCmd()
 	case "esc":
 		m.Screen = types.ScreenKeys
+	}
+	return m, nil
+}
+
+func (m Model) handleLiveMetricsScreen(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
+	switch msg.String() {
+	case "q", "esc":
+		m.LiveMetricsActive = false
+		m.Screen = types.ScreenKeys
+	case "c":
+		// Clear metrics history
+		if m.LiveMetrics != nil {
+			m.LiveMetrics.DataPoints = nil
+		}
+		m.StatusMsg = "Metrics cleared"
 	}
 	return m, nil
 }

@@ -13,14 +13,22 @@ import (
 func (m Model) viewKeys() string {
 	// Calculate panel widths - left panel for keys, right panel for preview
 	totalWidth := m.Width
-	if totalWidth < 100 {
-		// If terminal is too narrow, just show keys list without preview
+	if totalWidth < 80 || m.Height < 20 {
+		// If terminal is too narrow or short, just show keys list without preview
 		return m.viewKeysListOnly()
 	}
 
 	// Left panel gets 60%, right panel gets 40%
 	leftWidth := (totalWidth * 60) / 100
 	rightWidth := totalWidth - leftWidth - 1
+
+	// Ensure minimum widths
+	if leftWidth < 30 {
+		leftWidth = 30
+	}
+	if rightWidth < 20 {
+		rightWidth = 20
+	}
 
 	// Build left panel (keys list)
 	leftContent := m.buildKeysListPanel(leftWidth - 2)
@@ -29,17 +37,81 @@ func (m Model) viewKeys() string {
 	rightContent := m.buildPreviewPanel(rightWidth - 2)
 
 	// Create border styles
+	panelHeight := m.Height - 4
+	if panelHeight < 10 {
+		panelHeight = 10
+	}
+
 	leftPanelStyle := lipgloss.NewStyle().
 		Width(leftWidth).
-		Height(m.Height-4).
+		Height(panelHeight).
+		MaxHeight(panelHeight).
 		Padding(0, 1)
 
 	rightPanelStyle := lipgloss.NewStyle().
 		Width(rightWidth).
-		Height(m.Height-4).
+		Height(panelHeight).
+		MaxHeight(panelHeight).
 		Padding(0, 1).
 		Border(lipgloss.NormalBorder(), false, false, false, true).
 		BorderForeground(lipgloss.Color("240"))
+
+	// Normalize both panels to exact height to prevent rendering artifacts
+	maxLines := panelHeight - 2
+	if maxLines < 5 {
+		maxLines = 5
+	}
+
+	// Helper to pad each line to exact width
+	padLine := func(line string, width int) string {
+		if width <= 0 {
+			return ""
+		}
+		// Count visible characters (without ANSI codes)
+		visibleLen := lipgloss.Width(line)
+		if visibleLen >= width {
+			return line
+		}
+		return line + strings.Repeat(" ", width-visibleLen)
+	}
+
+	// Pad/truncate left content
+	leftLines := strings.Split(leftContent, "\n")
+	if len(leftLines) > maxLines {
+		leftLines = leftLines[:maxLines]
+	}
+	// Pad each line to full width
+	padWidth := leftWidth - 4
+	if padWidth < 1 {
+		padWidth = 1
+	}
+	for i := range leftLines {
+		leftLines[i] = padLine(leftLines[i], padWidth)
+	}
+	// Add empty lines to fill height
+	for len(leftLines) < maxLines {
+		leftLines = append(leftLines, strings.Repeat(" ", padWidth))
+	}
+	leftContent = strings.Join(leftLines, "\n")
+
+	// Pad/truncate right content
+	rightLines := strings.Split(rightContent, "\n")
+	if len(rightLines) > maxLines {
+		rightLines = rightLines[:maxLines]
+	}
+	// Pad each line to full width
+	rightPadWidth := rightWidth - 4
+	if rightPadWidth < 1 {
+		rightPadWidth = 1
+	}
+	for i := range rightLines {
+		rightLines[i] = padLine(rightLines[i], rightPadWidth)
+	}
+	// Add empty lines to fill height
+	for len(rightLines) < maxLines {
+		rightLines = append(rightLines, strings.Repeat(" ", rightPadWidth))
+	}
+	rightContent = strings.Join(rightLines, "\n")
 
 	leftPanel := leftPanelStyle.Render(leftContent)
 	rightPanel := rightPanelStyle.Render(rightContent)
@@ -293,7 +365,7 @@ func (m Model) buildPreviewPanel(width int) string {
 	b.WriteString(titleStyle.Render("Preview"))
 	b.WriteString("\n")
 	b.WriteString(dimStyle.Render(strings.Repeat("─", width)))
-	b.WriteString("\n\n")
+	b.WriteString("\n")
 
 	// Check if we have keys
 	if len(m.Keys) == 0 || m.SelectedKeyIdx >= len(m.Keys) {
@@ -310,13 +382,13 @@ func (m Model) buildPreviewPanel(width int) string {
 		keyName = keyName[:width-9] + "..."
 	}
 	b.WriteString(normalStyle.Render(keyName))
-	b.WriteString("\n\n")
+	b.WriteString("\n")
 
 	// Type with color
 	b.WriteString(keyStyle.Render("Type: "))
 	typeColor := getTypeColor(selectedKey.Type)
 	b.WriteString(lipgloss.NewStyle().Foreground(typeColor).Bold(true).Render(string(selectedKey.Type)))
-	b.WriteString("\n\n")
+	b.WriteString("\n")
 
 	// TTL with visual indicator
 	b.WriteString(keyStyle.Render("TTL: "))
@@ -347,15 +419,15 @@ func (m Model) buildPreviewPanel(width int) string {
 	} else {
 		b.WriteString(dimStyle.Render("No expiry"))
 	}
-	b.WriteString("\n\n")
+	b.WriteString("\n")
 
 	// Separator before value
 	b.WriteString(dimStyle.Render(strings.Repeat("─", width)))
-	b.WriteString("\n\n")
+	b.WriteString("\n")
 
 	// Value section
 	b.WriteString(keyStyle.Render("Value"))
-	b.WriteString("\n\n")
+	b.WriteString("\n")
 
 	// Check if preview is loaded
 	if m.PreviewKey != selectedKey.Key {
@@ -408,7 +480,7 @@ func (m Model) formatPreviewValue(maxWidth, maxLines int) string {
 				lines = append(lines, dimStyle.Render(fmt.Sprintf("... and %d more items", len(m.PreviewValue.ListValue)-i)))
 				break
 			}
-			val := v
+			val, _ := sanitizeBinaryString(v)
 			if len(val) > maxWidth-8 {
 				val = val[:maxWidth-11] + "..."
 			}
@@ -428,7 +500,7 @@ func (m Model) formatPreviewValue(maxWidth, maxLines int) string {
 				lines = append(lines, dimStyle.Render(fmt.Sprintf("... and %d more", len(m.PreviewValue.SetValue)-i)))
 				break
 			}
-			val := v
+			val, _ := sanitizeBinaryString(v)
 			if len(val) > maxWidth-4 {
 				val = val[:maxWidth-7] + "..."
 			}
@@ -447,7 +519,7 @@ func (m Model) formatPreviewValue(maxWidth, maxLines int) string {
 				lines = append(lines, dimStyle.Render(fmt.Sprintf("... and %d more", len(m.PreviewValue.ZSetValue)-i)))
 				break
 			}
-			member := v.Member
+			member, _ := sanitizeBinaryString(v.Member)
 			if len(member) > maxWidth-12 {
 				member = member[:maxWidth-15] + "..."
 			}
@@ -478,7 +550,7 @@ func (m Model) formatPreviewValue(maxWidth, maxLines int) string {
 			v := m.PreviewValue.HashValue[k]
 
 			// Truncate key and value
-			displayKey := k
+			displayKey, _ := sanitizeBinaryString(k)
 			if len(displayKey) > 15 {
 				displayKey = displayKey[:12] + "..."
 			}
@@ -487,7 +559,7 @@ func (m Model) formatPreviewValue(maxWidth, maxLines int) string {
 			if maxValLen < 10 {
 				maxValLen = 10
 			}
-			displayVal := v
+			displayVal, _ := sanitizeBinaryString(v)
 			if len(displayVal) > maxValLen {
 				displayVal = displayVal[:maxValLen-3] + "..."
 			}

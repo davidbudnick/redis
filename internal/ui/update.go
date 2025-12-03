@@ -126,6 +126,12 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case types.CompareKeysResultMsg:
 		return m.handleCompareKeysResultMsg(msg)
 
+	// Live Metrics
+	case types.LiveMetricsMsg:
+		return m.handleLiveMetricsMsg(msg)
+	case types.LiveMetricsTickMsg:
+		return m.handleLiveMetricsTickMsg()
+
 	// Clipboard
 	case types.ClipboardCopiedMsg:
 		return m.handleClipboardCopiedMsg(msg)
@@ -302,6 +308,8 @@ func (m Model) handleKeyPress(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		return m.handleConnectionGroupsScreen(msg)
 	case types.ScreenExpiringKeys:
 		return m.handleExpiringKeysScreen(msg)
+	case types.ScreenLiveMetrics:
+		return m.handleLiveMetricsScreen(msg)
 	}
 	return m, nil
 }

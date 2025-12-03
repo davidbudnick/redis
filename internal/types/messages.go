@@ -308,6 +308,15 @@ type KeyPreviewLoadedMsg struct {
 	Err   error
 }
 
+// LiveMetricsMsg is sent when live metrics are fetched
+type LiveMetricsMsg struct {
+	Data LiveMetricsData
+	Err  error
+}
+
+// LiveMetricsTickMsg triggers a metrics refresh
+type LiveMetricsTickMsg struct{}
+
 // KeyComparison holds comparison result between two keys
 type KeyComparison struct {
 	Key1        string
