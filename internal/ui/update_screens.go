@@ -332,7 +332,7 @@ func (m Model) handleKeysScreen(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	case "C":
 		m.Loading = true
 		return m, cmd.GetClusterInfoCmd()
-	case "K":
+	case "ctrl+k":
 		m.CompareKey1Input.SetValue("")
 		m.CompareKey2Input.SetValue("")
 		m.CompareKey1Input.Focus()
@@ -493,7 +493,7 @@ func (m Model) handleKeyDetailScreen(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		if m.CurrentKey != nil {
 			return m, cmd.CopyToClipboardCmd(m.CurrentValue.StringValue)
 		}
-	case "J":
+	case "ctrl+j":
 		// JSON path query (for string keys with JSON)
 		if m.CurrentKey != nil && m.CurrentKey.Type == types.KeyTypeString {
 			m.JSONPathInput.SetValue("")
@@ -501,13 +501,29 @@ func (m Model) handleKeyDetailScreen(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 			m.Screen = types.ScreenJSONPath
 		}
 	case "up", "k":
-		if m.SelectedItemIdx > 0 {
-			m.SelectedItemIdx--
+		if m.CurrentKey != nil && m.CurrentKey.Type == types.KeyTypeString {
+			if m.DetailScroll > 0 {
+				m.DetailScroll--
+			}
+		} else {
+			if m.SelectedItemIdx > 0 {
+				m.SelectedItemIdx--
+			}
 		}
 	case "down", "j":
-		maxIdx := m.getCollectionLength() - 1
-		if m.SelectedItemIdx < maxIdx {
-			m.SelectedItemIdx++
+		if m.CurrentKey != nil && m.CurrentKey.Type == types.KeyTypeString {
+			maxScroll := len(m.DetailLines) - 20 // 20 is maxLines in viewKeyDetail
+			if maxScroll < 0 {
+				maxScroll = 0
+			}
+			if m.DetailScroll < maxScroll {
+				m.DetailScroll++
+			}
+		} else {
+			maxIdx := m.getCollectionLength() - 1
+			if m.SelectedItemIdx < maxIdx {
+				m.SelectedItemIdx++
+			}
 		}
 	case "esc", "backspace":
 		m.Screen = types.ScreenKeys

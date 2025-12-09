@@ -62,31 +62,19 @@ func (m Model) viewKeys() string {
 		maxLines = 5
 	}
 
-	// Helper to pad each line to exact width
-	padLine := func(line string, width int) string {
-		if width <= 0 {
-			return ""
-		}
-		// Count visible characters (without ANSI codes)
-		visibleLen := lipgloss.Width(line)
-		if visibleLen >= width {
-			return line
-		}
-		return line + strings.Repeat(" ", width-visibleLen)
-	}
-
 	// Pad/truncate left content
 	leftLines := strings.Split(leftContent, "\n")
 	if len(leftLines) > maxLines {
 		leftLines = leftLines[:maxLines]
 	}
 	// Pad each line to full width
-	padWidth := leftWidth - 4
+	padWidth := leftWidth - 2
 	if padWidth < 1 {
 		padWidth = 1
 	}
+	padStyle := lipgloss.NewStyle().Width(padWidth)
 	for i := range leftLines {
-		leftLines[i] = padLine(leftLines[i], padWidth)
+		leftLines[i] = padStyle.Render(leftLines[i])
 	}
 	// Add empty lines to fill height
 	for len(leftLines) < maxLines {
@@ -100,12 +88,13 @@ func (m Model) viewKeys() string {
 		rightLines = rightLines[:maxLines]
 	}
 	// Pad each line to full width
-	rightPadWidth := rightWidth - 4
+	rightPadWidth := rightWidth - 2
 	if rightPadWidth < 1 {
 		rightPadWidth = 1
 	}
+	rightPadStyle := lipgloss.NewStyle().Width(rightPadWidth)
 	for i := range rightLines {
-		rightLines[i] = padLine(rightLines[i], rightPadWidth)
+		rightLines[i] = rightPadStyle.Render(rightLines[i])
 	}
 	// Add empty lines to fill height
 	for len(rightLines) < maxLines {
@@ -441,7 +430,9 @@ func (m Model) buildPreviewPanel(width int) string {
 		maxLines = 5
 	}
 
-	valueContent := m.formatPreviewValue(width, maxLines)
+	var valueContent string
+	valueContent = m.formatPreviewValue(width, maxLines)
+
 	b.WriteString(valueContent)
 
 	return b.String()
@@ -455,16 +446,18 @@ func (m Model) formatPreviewValue(maxWidth, maxLines int) string {
 		value := m.PreviewValue.StringValue
 		formatted := formatPossibleJSON(value)
 
-		// Split into lines and limit
+		// Split into lines
 		valueLines := strings.Split(formatted, "\n")
-		for i, line := range valueLines {
-			if i >= maxLines {
-				lines = append(lines, dimStyle.Render(fmt.Sprintf("... (%d more lines)", len(valueLines)-i)))
-				break
-			}
-			if len(line) > maxWidth {
-				line = line[:maxWidth-3] + "..."
-			}
+		
+		var displayLines []string
+		if len(valueLines) > maxLines {
+			displayLines = valueLines[:maxLines-1]
+			displayLines = append(displayLines, dimStyle.Render(fmt.Sprintf("↓ %d more lines", len(valueLines) - (maxLines - 1))))
+		} else {
+			displayLines = valueLines
+		}
+		
+		for _, line := range displayLines {
 			lines = append(lines, normalStyle.Render(line))
 		}
 
@@ -663,7 +656,32 @@ func (m Model) viewKeyDetail() string {
 	var valueContent string
 	switch m.CurrentValue.Type {
 	case types.KeyTypeString:
-		valueContent = formatPossibleJSON(m.CurrentValue.StringValue)
+		// Use pre-split lines for performance
+		allLines := m.DetailLines
+		maxLines := 20
+		start := m.DetailScroll
+		if start < 0 {
+			start = 0
+		}
+		if start > len(allLines)-maxLines {
+			start = len(allLines) - maxLines
+		}
+		if start < 0 {
+			start = 0
+		}
+		end := start + maxLines
+		if end > len(allLines) {
+			end = len(allLines)
+		}
+		var displayLines []string
+		if start > 0 {
+			displayLines = append(displayLines, dimStyle.Render(fmt.Sprintf("↑ %d more lines", start)))
+		}
+		displayLines = append(displayLines, allLines[start:end]...)
+		if end < len(allLines) {
+			displayLines = append(displayLines, dimStyle.Render(fmt.Sprintf("↓ %d more lines", len(allLines) - end)))
+		}
+		valueContent = strings.Join(displayLines, "\n")
 	case types.KeyTypeList:
 		if len(m.CurrentValue.ListValue) == 0 {
 			valueContent = "(empty list)"
@@ -734,7 +752,7 @@ func (m Model) viewKeyDetail() string {
 
 	helpText := "t:TTL  d:del  r:refresh  R:rename  c:copy"
 	if m.CurrentKey.Type == types.KeyTypeString {
-		helpText += "  e:edit"
+		helpText += "  e:edit  j/k:scroll"
 	} else {
 		helpText += "  a:add  x:remove"
 	}

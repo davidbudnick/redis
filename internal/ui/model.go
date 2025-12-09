@@ -154,8 +154,11 @@ type Model struct {
 	LastTickTime time.Time
 
 	// Key preview (shown in keys list)
-	PreviewKey   string
-	PreviewValue types.RedisValue
+	PreviewKey    string
+	PreviewValue  types.RedisValue
+	PreviewScroll int
+	DetailScroll  int
+	DetailLines   []string
 
 	// Live metrics dashboard
 	LiveMetrics       *types.LiveMetrics

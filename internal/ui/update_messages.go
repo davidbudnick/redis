@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log/slog"
 	"strconv"
+	"strings"
 
 	"github.com/davidbudnick/redis/internal/cmd"
 	"github.com/davidbudnick/redis/internal/types"
@@ -153,6 +154,10 @@ func (m Model) handleKeyValueLoadedMsg(msg types.KeyValueLoadedMsg) (tea.Model, 
 		m.StatusMsg = "Error: " + msg.Err.Error()
 	} else {
 		m.CurrentValue = msg.Value
+		m.DetailScroll = 0
+		if msg.Value.Type == types.KeyTypeString {
+			m.DetailLines = strings.Split(formatPossibleJSON(msg.Value.StringValue), "\n")
+		}
 		m.Screen = types.ScreenKeyDetail
 	}
 	return m, nil
