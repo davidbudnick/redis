@@ -448,15 +448,15 @@ func (m Model) formatPreviewValue(maxWidth, maxLines int) string {
 
 		// Split into lines
 		valueLines := strings.Split(formatted, "\n")
-		
+
 		var displayLines []string
 		if len(valueLines) > maxLines {
 			displayLines = valueLines[:maxLines-1]
-			displayLines = append(displayLines, dimStyle.Render(fmt.Sprintf("↓ %d more lines", len(valueLines) - (maxLines - 1))))
+			displayLines = append(displayLines, dimStyle.Render(fmt.Sprintf("↓ %d more lines", len(valueLines)-(maxLines-1))))
 		} else {
 			displayLines = valueLines
 		}
-		
+
 		for _, line := range displayLines {
 			lines = append(lines, normalStyle.Render(line))
 		}
@@ -679,7 +679,7 @@ func (m Model) viewKeyDetail() string {
 		}
 		displayLines = append(displayLines, allLines[start:end]...)
 		if end < len(allLines) {
-			displayLines = append(displayLines, dimStyle.Render(fmt.Sprintf("↓ %d more lines", len(allLines) - end)))
+			displayLines = append(displayLines, dimStyle.Render(fmt.Sprintf("↓ %d more lines", len(allLines)-end)))
 		}
 		valueContent = strings.Join(displayLines, "\n")
 	case types.KeyTypeList:
