@@ -3,8 +3,6 @@ package ui
 import (
 	"bytes"
 	"encoding/json"
-	"os"
-	"os/exec"
 	"sort"
 	"strconv"
 	"strings"
@@ -434,13 +432,6 @@ func (m Model) handleKeyDetailScreen(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		}
 	case "e":
 		if m.CurrentKey != nil && m.CurrentKey.Type == types.KeyTypeString {
-			tempFile, err := os.CreateTemp("", "redis_edit_*.json")
-			if err != nil {
-				m.StatusMsg = "Error creating temp file: " + err.Error()
-				return m, nil
-			}
-			tempFile.Close() // Close it so vim can open it
-
 			value := m.CurrentValue.StringValue
 			// Auto-format as JSON if it looks like JSON
 			if strings.TrimSpace(value) != "" && (strings.HasPrefix(strings.TrimSpace(value), "{") || strings.HasPrefix(strings.TrimSpace(value), "[")) {
@@ -449,18 +440,9 @@ func (m Model) handleKeyDetailScreen(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 					value = prettyJSON.String()
 				}
 			}
-
-			if err := os.WriteFile(tempFile.Name(), []byte(value), 0644); err != nil {
-				m.StatusMsg = "Error writing temp file: " + err.Error()
-				os.Remove(tempFile.Name())
-				return m, nil
-			}
-
-			// Store the temp file name for cleanup
-			m.StatusMsg = "Opening in Vim..."
-			return m, tea.ExecProcess(exec.Command("vim", tempFile.Name()), func(err error) tea.Msg {
-				return types.VimEditDoneMsg{TempFile: tempFile.Name(), Err: err}
-			})
+			m.EditValueInput.SetValue(value)
+			m.EditValueInput.Focus()
+			m.Screen = types.ScreenEditValue
 		}
 	case "a":
 		if m.CurrentKey != nil && m.CurrentKey.Type != types.KeyTypeString {
@@ -720,8 +702,24 @@ func (m Model) handleEditValueScreen(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		m.Screen = types.ScreenKeyDetail
 		m.EditValueInput.Blur()
 	default:
+		// Handle Vim-like keys
+		fakeMsg := msg
+		switch msg.String() {
+		case "k":
+			fakeMsg = tea.KeyMsg{Type: tea.KeyUp}
+		case "j":
+			fakeMsg = tea.KeyMsg{Type: tea.KeyDown}
+		case "h":
+			fakeMsg = tea.KeyMsg{Type: tea.KeyLeft}
+		case "l":
+			fakeMsg = tea.KeyMsg{Type: tea.KeyRight}
+		case "0":
+			fakeMsg = tea.KeyMsg{Type: tea.KeyHome}
+		case "$":
+			fakeMsg = tea.KeyMsg{Type: tea.KeyEnd}
+		}
 		var inputCmd tea.Cmd
-		m.EditValueInput, inputCmd = m.EditValueInput.Update(msg)
+		m.EditValueInput, inputCmd = m.EditValueInput.Update(fakeMsg)
 		return m, inputCmd
 	}
 	return m, nil

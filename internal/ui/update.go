@@ -22,9 +22,6 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case types.TickMsg:
 		return m.handleTickMsg()
 
-	case types.ConfigLoadedMsg:
-		return m.handleConfigLoadedMsg(msg)
-
 	// Connection messages
 	case types.ConnectionsLoadedMsg:
 		return m.handleConnectionsLoadedMsg(msg)
@@ -62,8 +59,6 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	// Value messages
 	case types.ValueEditedMsg:
 		return m.handleValueEditedMsg(msg)
-	case types.VimEditDoneMsg:
-		return m.handleVimEditDoneMsg(msg)
 	case types.ItemAddedToCollectionMsg:
 		return m.handleItemAddedToCollectionMsg(msg)
 	case types.ItemRemovedFromCollectionMsg:

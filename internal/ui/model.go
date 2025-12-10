@@ -210,7 +210,7 @@ func (m *Model) ensureInputsInitialized() {
 	m.EditValueInput = textarea.New()
 	m.EditValueInput.Placeholder = "New value (supports multi-line JSON)"
 	m.EditValueInput.SetWidth(60)
-	m.EditValueInput.SetHeight(15) // Allow multi-line editing
+	m.EditValueInput.SetHeight(15)          // Allow multi-line editing
 	m.EditValueInput.ShowLineNumbers = true // Enable line numbers for better navigation
 
 	m.RenameInput = textinput.New()
