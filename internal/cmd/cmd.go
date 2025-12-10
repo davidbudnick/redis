@@ -95,11 +95,15 @@ func DisconnectCmd() tea.Cmd {
 
 func LoadKeysCmd(pattern string, cursor uint64, count int64) tea.Cmd {
 	return func() tea.Msg {
+		slog.Info("LoadKeysCmd started", "pattern", pattern, "cursor", cursor, "count", count)
 		if RedisClient == nil {
+			slog.Info("LoadKeysCmd: RedisClient is nil")
 			return types.KeysLoadedMsg{Err: nil}
 		}
 		keys, nextCursor, err := RedisClient.ScanKeys(pattern, cursor, count)
+		slog.Info("LoadKeysCmd: ScanKeys completed", "keysCount", len(keys), "err", err)
 		totalKeys := RedisClient.GetTotalKeys()
+		slog.Info("LoadKeysCmd: GetTotalKeys completed", "totalKeys", totalKeys)
 		return types.KeysLoadedMsg{Keys: keys, Cursor: nextCursor, TotalKeys: totalKeys, Err: err}
 	}
 }

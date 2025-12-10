@@ -140,7 +140,9 @@ func (c *Client) IsCluster() bool {
 
 // GetTotalKeys returns the total number of keys in the current database
 func (c *Client) GetTotalKeys() int64 {
-	count, err := c.client.DBSize(c.ctx).Result()
+	ctx, cancel := context.WithTimeout(c.ctx, 5*time.Second)
+	defer cancel()
+	count, err := c.client.DBSize(ctx).Result()
 	if err != nil {
 		return 0
 	}
@@ -153,15 +155,18 @@ func (c *Client) ScanKeys(pattern string, cursor uint64, count int64) ([]types.R
 		pattern = "*"
 	}
 
-	keys, nextCursor, err := c.client.Scan(c.ctx, cursor, pattern, count).Result()
+	ctx, cancel := context.WithTimeout(c.ctx, 10*time.Second)
+	defer cancel()
+
+	keys, nextCursor, err := c.client.Scan(ctx, cursor, pattern, count).Result()
 	if err != nil {
 		return nil, 0, err
 	}
 
 	var result []types.RedisKey
 	for _, key := range keys {
-		keyType, _ := c.client.Type(c.ctx, key).Result()
-		ttl, _ := c.client.TTL(c.ctx, key).Result()
+		keyType, _ := c.client.Type(ctx, key).Result()
+		ttl, _ := c.client.TTL(ctx, key).Result()
 		result = append(result, types.RedisKey{
 			Key:  key,
 			Type: types.KeyType(keyType),

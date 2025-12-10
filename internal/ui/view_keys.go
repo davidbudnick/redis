@@ -430,8 +430,7 @@ func (m Model) buildPreviewPanel(width int) string {
 		maxLines = 5
 	}
 
-	var valueContent string
-	valueContent = m.formatPreviewValue(width, maxLines)
+	valueContent := m.formatPreviewValue(width, maxLines)
 
 	b.WriteString(valueContent)
 

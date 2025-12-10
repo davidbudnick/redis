@@ -140,6 +140,7 @@ func (m Model) handleKeysLoadedMsg(msg types.KeysLoadedMsg) (tea.Model, tea.Cmd)
 		}
 		m.KeyCursor = msg.Cursor
 		m.TotalKeys = msg.TotalKeys
+		m.StatusMsg = "" // Clear the "Loading keys..." message
 		// Load preview for selected key
 		if len(m.Keys) > 0 && m.SelectedKeyIdx < len(m.Keys) {
 			return m, cmd.LoadKeyPreviewCmd(m.Keys[m.SelectedKeyIdx].Key)

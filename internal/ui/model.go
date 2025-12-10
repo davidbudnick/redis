@@ -4,11 +4,11 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/charmbracelet/bubbles/textarea"
+	"github.com/charmbracelet/bubbles/textinput"
 	"github.com/davidbudnick/redis/internal/cmd"
 	"github.com/davidbudnick/redis/internal/types"
 
-	"github.com/charmbracelet/bubbles/textarea"
-	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 )
 
