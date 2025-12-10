@@ -1,8 +1,10 @@
 package ui
 
 import (
+	"encoding/json"
 	"fmt"
 	"log/slog"
+	"os"
 	"strconv"
 	"strings"
 
@@ -24,6 +26,18 @@ func (m Model) handleConnectionsLoadedMsg(msg types.ConnectionsLoadedMsg) (tea.M
 		m.StatusMsg = ""
 	}
 	return m, nil
+}
+
+func (m Model) handleConfigLoadedMsg(msg types.ConfigLoadedMsg) (tea.Model, tea.Cmd) {
+	if msg.Err != nil {
+		slog.Error("Failed to load config", "error", msg.Err)
+		m.Err = msg.Err
+		m.StatusMsg = "Error: " + msg.Err.Error()
+		return m, nil
+	}
+	// Config loaded, now load connections
+	m.StatusMsg = "Loading connections..."
+	return m, cmd.LoadConnectionsCmd()
 }
 
 func (m Model) handleConnectionAddedMsg(msg types.ConnectionAddedMsg) (tea.Model, tea.Cmd) {
@@ -85,16 +99,17 @@ func (m Model) handleConnectedMsg(msg types.ConnectedMsg) (tea.Model, tea.Cmd) {
 		m.StatusMsg = "Connection failed"
 		return m, nil
 	}
+	slog.Info("Connected to Redis", "connection", m.CurrentConn.Name)
 	// Initialize inputs lazily on first connection
 	m.ensureInputsInitialized()
 	m.ConnectionError = ""
 	m.Screen = types.ScreenKeys
-	m.StatusMsg = "Connected"
+	m.StatusMsg = "Loading keys..."
 	var sendFunc func(tea.Msg)
 	if m.SendFunc != nil {
 		sendFunc = *m.SendFunc
 	}
-	return m, tea.Batch(cmd.LoadKeysCmd(m.KeyPattern, 0, 1000), cmd.SubscribeKeyspaceCmd("*", sendFunc), tickCmd())
+	return m, tea.Batch(cmd.LoadKeysCmd(m.KeyPattern, 0, 200), cmd.SubscribeKeyspaceCmd("*", sendFunc), tickCmd())
 }
 
 func (m Model) handleDisconnectedMsg() (tea.Model, tea.Cmd) {
@@ -255,6 +270,38 @@ func (m Model) handleValueEditedMsg(msg types.ValueEditedMsg) (tea.Model, tea.Cm
 		return m, cmd.LoadKeyValueCmd(m.CurrentKey.Key)
 	}
 	return m, nil
+}
+
+func (m Model) handleVimEditDoneMsg(msg types.VimEditDoneMsg) (tea.Model, tea.Cmd) {
+	defer os.Remove(msg.TempFile) // Clean up temp file
+
+	if msg.Err != nil {
+		m.StatusMsg = "Vim edit failed: " + msg.Err.Error()
+		m.Screen = types.ScreenKeyDetail
+		return m, nil
+	}
+
+	content, err := os.ReadFile(msg.TempFile)
+	if err != nil {
+		m.StatusMsg = "Error reading temp file: " + err.Error()
+		m.Screen = types.ScreenKeyDetail
+		return m, nil
+	}
+
+	value := string(content)
+	// Validate JSON if it looks like JSON
+	if strings.TrimSpace(value) != "" && (strings.HasPrefix(strings.TrimSpace(value), "{") || strings.HasPrefix(strings.TrimSpace(value), "[")) {
+		var js interface{}
+		if err := json.Unmarshal([]byte(value), &js); err != nil {
+			m.StatusMsg = "Error: Invalid JSON - " + err.Error()
+			m.Screen = types.ScreenKeyDetail
+			return m, nil
+		}
+	}
+
+	m.Loading = true
+	m.StatusMsg = "Saving edited value..."
+	return m, cmd.EditStringValueCmd(m.CurrentKey.Key, value)
 }
 
 func (m Model) handleItemAddedToCollectionMsg(msg types.ItemAddedToCollectionMsg) (tea.Model, tea.Cmd) {

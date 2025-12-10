@@ -1,6 +1,10 @@
 package ui
 
 import (
+	"bytes"
+	"encoding/json"
+	"os"
+	"os/exec"
 	"sort"
 	"strconv"
 	"strings"
@@ -430,9 +434,33 @@ func (m Model) handleKeyDetailScreen(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		}
 	case "e":
 		if m.CurrentKey != nil && m.CurrentKey.Type == types.KeyTypeString {
-			m.EditValueInput.SetValue(m.CurrentValue.StringValue)
-			m.EditValueInput.Focus()
-			m.Screen = types.ScreenEditValue
+			tempFile, err := os.CreateTemp("", "redis_edit_*.json")
+			if err != nil {
+				m.StatusMsg = "Error creating temp file: " + err.Error()
+				return m, nil
+			}
+			tempFile.Close() // Close it so vim can open it
+
+			value := m.CurrentValue.StringValue
+			// Auto-format as JSON if it looks like JSON
+			if strings.TrimSpace(value) != "" && (strings.HasPrefix(strings.TrimSpace(value), "{") || strings.HasPrefix(strings.TrimSpace(value), "[")) {
+				var prettyJSON bytes.Buffer
+				if err := json.Indent(&prettyJSON, []byte(value), "", "  "); err == nil {
+					value = prettyJSON.String()
+				}
+			}
+
+			if err := os.WriteFile(tempFile.Name(), []byte(value), 0644); err != nil {
+				m.StatusMsg = "Error writing temp file: " + err.Error()
+				os.Remove(tempFile.Name())
+				return m, nil
+			}
+
+			// Store the temp file name for cleanup
+			m.StatusMsg = "Opening in Vim..."
+			return m, tea.ExecProcess(exec.Command("vim", tempFile.Name()), func(err error) tea.Msg {
+				return types.VimEditDoneMsg{TempFile: tempFile.Name(), Err: err}
+			})
 		}
 	case "a":
 		if m.CurrentKey != nil && m.CurrentKey.Type != types.KeyTypeString {
@@ -676,8 +704,17 @@ func (m Model) handleEditValueScreen(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	switch msg.String() {
 	case "enter":
 		if m.CurrentKey != nil {
+			value := m.EditValueInput.Value()
+			// Validate JSON if it looks like JSON
+			if strings.TrimSpace(value) != "" && (strings.HasPrefix(strings.TrimSpace(value), "{") || strings.HasPrefix(strings.TrimSpace(value), "[")) {
+				var js interface{}
+				if err := json.Unmarshal([]byte(value), &js); err != nil {
+					m.StatusMsg = "Error: Invalid JSON - " + err.Error()
+					return m, nil
+				}
+			}
 			m.Loading = true
-			return m, cmd.EditStringValueCmd(m.CurrentKey.Key, m.EditValueInput.Value())
+			return m, cmd.EditStringValueCmd(m.CurrentKey.Key, value)
 		}
 	case "esc":
 		m.Screen = types.ScreenKeyDetail

@@ -7,6 +7,7 @@ import (
 	"github.com/davidbudnick/redis/internal/cmd"
 	"github.com/davidbudnick/redis/internal/types"
 
+	"github.com/charmbracelet/bubbles/textarea"
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 )
@@ -44,7 +45,7 @@ type Model struct {
 	PendingSelectKey  string
 
 	// New fields for additional features
-	EditValueInput     textinput.Model
+	EditValueInput     textarea.Model
 	EditingIndex       int
 	EditingField       string
 	AddCollectionInput []textinput.Model
@@ -206,9 +207,11 @@ func (m *Model) ensureInputsInitialized() {
 	m.TTLInput.Placeholder = "TTL in seconds (0 = no expiry)"
 	m.TTLInput.Width = 30
 
-	m.EditValueInput = textinput.New()
-	m.EditValueInput.Placeholder = "New value"
-	m.EditValueInput.Width = 50
+	m.EditValueInput = textarea.New()
+	m.EditValueInput.Placeholder = "New value (supports multi-line JSON)"
+	m.EditValueInput.SetWidth(60)
+	m.EditValueInput.SetHeight(15) // Allow multi-line editing
+	m.EditValueInput.ShowLineNumbers = true // Enable line numbers for better navigation
 
 	m.RenameInput = textinput.New()
 	m.RenameInput.Placeholder = "New key name"

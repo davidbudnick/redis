@@ -30,16 +30,20 @@ func main() {
 	handler := slog.NewJSONHandler(logWriter, nil)
 	slog.SetDefault(slog.New(handler))
 
-	// Load config (this happens quickly, but after UI is ready)
-	config, err := initConfig()
-	if err != nil {
-		log.Fatalf("Failed to initialize config: %v", err)
-	}
-	defer config.Close()
-	cmd.Config = config
-
 	p := tea.NewProgram(m, tea.WithAltScreen())
 	*m.SendFunc = p.Send
+
+	// Load config asynchronously to avoid blocking UI startup
+	go func() {
+		config, err := initConfig()
+		if err != nil {
+			p.Send(types.ConfigLoadedMsg{Err: err})
+			return
+		}
+		cmd.Config = config
+		p.Send(types.ConfigLoadedMsg{})
+	}()
+
 	if _, err := p.Run(); err != nil {
 		log.Fatal(err)
 	}

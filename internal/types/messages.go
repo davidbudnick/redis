@@ -324,3 +324,14 @@ type KeyComparison struct {
 	Equal       bool
 	Differences []string
 }
+
+// ConfigLoadedMsg is sent when config initialization is complete
+type ConfigLoadedMsg struct {
+	Err error
+}
+
+// VimEditDoneMsg is sent when Vim editing is complete
+type VimEditDoneMsg struct {
+	TempFile string
+	Err      error
+}
