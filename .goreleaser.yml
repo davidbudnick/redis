@@ -79,13 +79,13 @@ changelog:
     - title: Others
       order: 999
 
-brews:
+homebrew_casks:
   - name: redis-tui
     repository:
       owner: davidbudnick
       name: homebrew-tap
       token: "{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}"
-    directory: Formula
+    directory: Casks
     homepage: https://github.com/davidbudnick/redis
     description: A powerful TUI for managing Redis databases
     license: MIT
@@ -103,19 +103,6 @@ nfpms:
       - rpm
       - apk
     bindir: /usr/bin
-
-# Optional: Sign releases
-# signs:
-#   - artifacts: checksum
-
-# Optional: Docker images
-# dockers:
-#   - image_templates:
-#       - "ghcr.io/davidbudnick/redis-tui:{{ .Tag }}"
-#       - "ghcr.io/davidbudnick/redis-tui:latest"
-#     dockerfile: Dockerfile
-#     build_flag_templates:
-#       - "--platform=linux/amd64"
 
 release:
   github:
