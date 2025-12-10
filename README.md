@@ -13,8 +13,8 @@ A powerful terminal user interface (TUI) for managing Redis databases, built wit
 
 ```bash
 # Homebrew (macOS and Linux)
-brew tap davidbudnick/tap
-brew install redis-tui
+brew tap davidbudnick/homebrew-tap
+brew install --cask redis-tui
 ```
 
 ## Why Redis TUI?
@@ -265,10 +265,10 @@ brew install redis-tui
 
 ```bash
 # Add the tap
-brew tap davidbudnick/tap
+brew tap davidbudnick/homebrew-tap
 
 # Install redis-tui
-brew install redis-tui
+brew install --cask redis-tui
 ```
 
 ### From Source

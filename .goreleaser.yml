@@ -121,7 +121,8 @@ release:
     
     ### Homebrew (macOS/Linux)
     ```bash
-    brew install davidbudnick/tap/redis-tui
+    brew tap davidbudnick/homebrew-tap
+    brew install --cask redis-tui
     ```
     
     ### Go Install
