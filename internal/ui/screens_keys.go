@@ -174,6 +174,10 @@ func (m Model) handleKeysScreen(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	case "ctrl+l":
 		m.Loading = true
 		return m, cmd.GetClientListCmd()
+	case "m":
+		m.LiveMetricsActive = true
+		m.Loading = true
+		return m, cmd.LoadLiveMetricsCmd()
 	case "M":
 		m.Loading = true
 		return m, cmd.GetMemoryStatsCmd()

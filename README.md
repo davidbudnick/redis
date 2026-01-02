@@ -314,6 +314,9 @@ redis
 | `q` | Quit / Go back |
 | `?` | Show help |
 | `j/k` | Navigate up/down |
+| `Ctrl+U/D` | Page up/down |
+| `g/G` | Go to top/bottom |
+| `home/end` | Go to top/bottom |
 | `Ctrl+C` | Force quit |
 
 ### Connections Screen
@@ -323,7 +326,7 @@ redis
 | `Enter` | Connect to selected |
 | `a/n` | Add new connection |
 | `e` | Edit connection |
-| `d` | Delete connection |
+| `d/delete/backspace` | Delete connection |
 | `r` | Refresh list |
 | `Ctrl+T` | Test connection |
 
@@ -333,7 +336,9 @@ redis
 | --- | --- |
 | `Enter` | View key details |
 | `a/n` | Add new key |
-| `d` | Delete key |
+| `d/delete/backspace` | Delete key |
+| `r` | Refresh keys |
+| `l` | Load more keys |
 | `/` | Filter by pattern |
 | `s/S` | Sort / Toggle direction |
 | `v` | Search by value |
@@ -341,6 +346,10 @@ redis
 | `I` | Import from JSON |
 | `i` | Server info |
 | `D` | Switch database |
+| `f` | Flush database |
+| `p` | Pub/Sub publish |
+| `L` | View slow log |
+| `E` | Execute Lua script |
 | `O` | View logs |
 | `B` | Bulk delete |
 | `T` | Batch set TTL |
@@ -348,10 +357,14 @@ redis
 | `W` | Tree view |
 | `Ctrl+R` | Regex search |
 | `Ctrl+F` | Fuzzy search |
+| `Ctrl+H` | Recent keys |
 | `Ctrl+L` | Client list |
-| `M` | Memory stats |
+| `Ctrl+E` | Toggle keyspace events |
+| `Ctrl+X` | View expiring keys |
 | `m` | Live metrics dashboard |
+| `M` | Memory stats |
 | `C` | Cluster info |
+| `K` | Compare keys |
 | `P` | Key templates |
 
 ### Key Detail Screen
@@ -364,12 +377,15 @@ redis
 | `t` | Set TTL |
 | `R` | Rename key |
 | `c` | Copy key |
-| `d` | Delete key |
+| `d/delete` | Delete key |
+| `r` | Refresh value |
 | `f` | Toggle favorite |
 | `w` | Watch for changes |
 | `h` | View value history |
 | `y` | Copy to clipboard |
 | `J` | JSON path query |
+| `j/k` | Navigate collection items |
+| `esc/backspace` | Go back to keys list |
 
 ## Configuration
 
@@ -491,13 +507,6 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 - [Lip Gloss](https://github.com/charmbracelet/lipgloss) - Styling library
 - [Bubbles](https://github.com/charmbracelet/bubbles) - TUI components
 - [go-redis](https://github.com/redis/go-redis) - Redis client
-
-## Related Projects
-
-If you're looking for Redis tools, you might also be interested in:
-
-- [redis-cli](https://redis.io/docs/ui/cli/) - Official Redis command line interface
-- [RedisInsight](https://redis.com/redis-enterprise/redis-insight/) - Official Redis GUI
 
 ## Keywords
 

@@ -175,20 +175,23 @@ type Model struct {
 func NewModel() Model {
 	// Only create essential inputs upfront - others are created lazily when needed
 	return Model{
-		Screen:            types.ScreenConnections,
-		Connections:       []types.Connection{},
-		ConnInputs:        createConnectionInputs(),
-		Keys:              []types.RedisKey{},
-		AddKeyType:        types.KeyTypeString,
-		SortBy:            "name",
-		SortAsc:           true,
-		TreeExpanded:      make(map[string]bool),
-		TreeSeparator:     ":",
-		SelectedBulkKeys:  make(map[string]bool),
-		WatchInterval:     time.Second * 2,
-		KeyBindings:       types.DefaultKeyBindings(),
-		ExpiryThreshold:   300,
-		inputsInitialized: false,
+		Screen:             types.ScreenConnections,
+		Connections:        []types.Connection{},
+		ConnInputs:         createConnectionInputs(),
+		Keys:               []types.RedisKey{},
+		AddKeyInputs:       createAddKeyInputs(),
+		AddCollectionInput: createAddCollectionInputs(),
+		PubSubInput:        createPubSubInputs(),
+		AddKeyType:         types.KeyTypeString,
+		SortBy:             "name",
+		SortAsc:            true,
+		TreeExpanded:       make(map[string]bool),
+		TreeSeparator:      ":",
+		SelectedBulkKeys:   make(map[string]bool),
+		WatchInterval:      time.Second * 2,
+		KeyBindings:        types.DefaultKeyBindings(),
+		ExpiryThreshold:    300,
+		inputsInitialized:  false,
 	}
 }
 
@@ -219,6 +222,51 @@ func createConnectionInputs() []textinput.Model {
 	inputs[4].Placeholder = "Database (0-15)"
 	inputs[4].Width = 30
 	inputs[4].SetValue("0")
+
+	return inputs
+}
+
+func createAddKeyInputs() []textinput.Model {
+	inputs := make([]textinput.Model, 2)
+
+	inputs[0] = textinput.New()
+	inputs[0].Placeholder = "Key Name"
+	inputs[0].Focus()
+	inputs[0].Width = 30
+
+	inputs[1] = textinput.New()
+	inputs[1].Placeholder = "Value"
+	inputs[1].Width = 30
+
+	return inputs
+}
+
+func createAddCollectionInputs() []textinput.Model {
+	inputs := make([]textinput.Model, 2)
+
+	inputs[0] = textinput.New()
+	inputs[0].Placeholder = "Field/Member"
+	inputs[0].Focus()
+	inputs[0].Width = 30
+
+	inputs[1] = textinput.New()
+	inputs[1].Placeholder = "Value/Score"
+	inputs[1].Width = 30
+
+	return inputs
+}
+
+func createPubSubInputs() []textinput.Model {
+	inputs := make([]textinput.Model, 2)
+
+	inputs[0] = textinput.New()
+	inputs[0].Placeholder = "Channel"
+	inputs[0].Focus()
+	inputs[0].Width = 30
+
+	inputs[1] = textinput.New()
+	inputs[1].Placeholder = "Message"
+	inputs[1].Width = 30
 
 	return inputs
 }
@@ -260,7 +308,9 @@ func (m *Model) resetAddKeyInputs() {
 		m.AddKeyInputs[i].SetValue("")
 		m.AddKeyInputs[i].Blur()
 	}
-	m.AddKeyInputs[0].Focus()
+	if len(m.AddKeyInputs) > 0 {
+		m.AddKeyInputs[0].Focus()
+	}
 	m.AddKeyFocusIdx = 0
 	m.AddKeyType = types.KeyTypeString
 }
