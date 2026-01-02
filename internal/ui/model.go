@@ -192,93 +192,6 @@ func NewModel() Model {
 	}
 }
 
-// ensureInputsInitialized lazily initializes text inputs when first needed
-func (m *Model) ensureInputsInitialized() {
-	if m.inputsInitialized {
-		return
-	}
-	m.inputsInitialized = true
-
-	m.PatternInput = textinput.New()
-	m.PatternInput.Placeholder = "Pattern (e.g., user:*)"
-	m.PatternInput.Width = 30
-
-	m.TTLInput = textinput.New()
-	m.TTLInput.Placeholder = "TTL in seconds (0 = no expiry)"
-	m.TTLInput.Width = 30
-
-	m.EditValueInput = textarea.New()
-	m.EditValueInput.Placeholder = "New value (supports multi-line JSON)"
-	m.EditValueInput.SetWidth(60)
-	m.EditValueInput.SetHeight(15)          // Allow multi-line editing
-	m.EditValueInput.ShowLineNumbers = true // Enable line numbers for better navigation
-
-	m.RenameInput = textinput.New()
-	m.RenameInput.Placeholder = "New key name"
-	m.RenameInput.Width = 40
-
-	m.CopyInput = textinput.New()
-	m.CopyInput.Placeholder = "Destination key name"
-	m.CopyInput.Width = 40
-
-	m.SearchValueInput = textinput.New()
-	m.SearchValueInput.Placeholder = "Search for value..."
-	m.SearchValueInput.Width = 40
-
-	m.ExportInput = textinput.New()
-	m.ExportInput.Placeholder = "export.json"
-	m.ExportInput.Width = 40
-	m.ExportInput.SetValue("export.json")
-
-	m.ImportInput = textinput.New()
-	m.ImportInput.Placeholder = "import.json"
-	m.ImportInput.Width = 40
-
-	m.LuaScriptInput = textinput.New()
-	m.LuaScriptInput.Placeholder = "return redis.call('PING')"
-	m.LuaScriptInput.Width = 60
-
-	m.DBSwitchInput = textinput.New()
-	m.DBSwitchInput.Placeholder = "Database number (0-15)"
-	m.DBSwitchInput.Width = 30
-
-	m.BulkDeleteInput = textinput.New()
-	m.BulkDeleteInput.Placeholder = "Pattern to delete (e.g., cache:*)"
-	m.BulkDeleteInput.Width = 40
-
-	m.BatchTTLInput = textinput.New()
-	m.BatchTTLInput.Placeholder = "TTL in seconds"
-	m.BatchTTLInput.Width = 20
-
-	m.BatchTTLPattern = textinput.New()
-	m.BatchTTLPattern.Placeholder = "Key pattern (e.g., session:*)"
-	m.BatchTTLPattern.Width = 40
-
-	m.RegexSearchInput = textinput.New()
-	m.RegexSearchInput.Placeholder = "Regex pattern (e.g., user:\\d+)"
-	m.RegexSearchInput.Width = 40
-
-	m.FuzzySearchInput = textinput.New()
-	m.FuzzySearchInput.Placeholder = "Fuzzy search term..."
-	m.FuzzySearchInput.Width = 40
-
-	m.CompareKey1Input = textinput.New()
-	m.CompareKey1Input.Placeholder = "First key to compare"
-	m.CompareKey1Input.Width = 40
-
-	m.CompareKey2Input = textinput.New()
-	m.CompareKey2Input.Placeholder = "Second key to compare"
-	m.CompareKey2Input.Width = 40
-
-	m.JSONPathInput = textinput.New()
-	m.JSONPathInput.Placeholder = "JSON path (e.g., $.users[0].name)"
-	m.JSONPathInput.Width = 50
-
-	m.AddKeyInputs = createAddKeyInputs()
-	m.AddCollectionInput = createAddCollectionInputs()
-	m.PubSubInput = createPubSubInputs()
-}
-
 func createConnectionInputs() []textinput.Model {
 	inputs := make([]textinput.Model, 5)
 
@@ -306,21 +219,6 @@ func createConnectionInputs() []textinput.Model {
 	inputs[4].Placeholder = "Database (0-15)"
 	inputs[4].Width = 30
 	inputs[4].SetValue("0")
-
-	return inputs
-}
-
-func createAddKeyInputs() []textinput.Model {
-	inputs := make([]textinput.Model, 2)
-
-	inputs[0] = textinput.New()
-	inputs[0].Placeholder = "Key Name"
-	inputs[0].Focus()
-	inputs[0].Width = 30
-
-	inputs[1] = textinput.New()
-	inputs[1].Placeholder = "Value"
-	inputs[1].Width = 30
 
 	return inputs
 }
@@ -373,36 +271,6 @@ func (m *Model) populateConnInputs(conn types.Connection) {
 	m.ConnInputs[2].SetValue(strconv.Itoa(conn.Port))
 	m.ConnInputs[3].SetValue(conn.Password)
 	m.ConnInputs[4].SetValue(strconv.Itoa(conn.DB))
-}
-
-func createAddCollectionInputs() []textinput.Model {
-	inputs := make([]textinput.Model, 2)
-
-	inputs[0] = textinput.New()
-	inputs[0].Placeholder = "Value / Member / Field"
-	inputs[0].Focus()
-	inputs[0].Width = 40
-
-	inputs[1] = textinput.New()
-	inputs[1].Placeholder = "Score / Value (optional)"
-	inputs[1].Width = 40
-
-	return inputs
-}
-
-func createPubSubInputs() []textinput.Model {
-	inputs := make([]textinput.Model, 2)
-
-	inputs[0] = textinput.New()
-	inputs[0].Placeholder = "Channel name"
-	inputs[0].Focus()
-	inputs[0].Width = 40
-
-	inputs[1] = textinput.New()
-	inputs[1].Placeholder = "Message"
-	inputs[1].Width = 40
-
-	return inputs
 }
 
 func (m *Model) resetAddCollectionInputs() {

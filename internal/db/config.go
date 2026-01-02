@@ -24,9 +24,9 @@ type Config struct {
 	MaxRecentKeys   int                       `json:"max_recent_keys"`
 	MaxValueHistory int                       `json:"max_value_history"`
 	WatchInterval   int                       `json:"watch_interval_ms"`
-	nextID          int64
-	path            string
-	mu              sync.RWMutex
+	nextID int64
+	path   string
+	mu     sync.RWMutex
 }
 
 func NewConfig(configPath string) (*Config, error) {
@@ -116,7 +116,35 @@ func (c *Config) load() error {
 }
 
 func (c *Config) save() error {
-	data, err := json.MarshalIndent(c, "", "  ")
+	// Create a copy of connections without passwords for JSON serialization
+	safeConnections := make([]types.Connection, len(c.Connections))
+	for i, conn := range c.Connections {
+		safeConnections[i] = conn
+		safeConnections[i].Password = "" // Don't save password to JSON
+		if safeConnections[i].SSHConfig != nil {
+			sshCopy := *conn.SSHConfig
+			sshCopy.Password = ""
+			sshCopy.Passphrase = ""
+			safeConnections[i].SSHConfig = &sshCopy
+		}
+	}
+
+	// Create a copy of config with safe connections
+	safeCfg := &Config{
+		Connections:     safeConnections,
+		Groups:          c.Groups,
+		Favorites:       c.Favorites,
+		RecentKeys:      c.RecentKeys,
+		Templates:       c.Templates,
+		KeyBindings:     c.KeyBindings,
+		TreeSeparator:   c.TreeSeparator,
+		ValueHistory:    c.ValueHistory,
+		MaxRecentKeys:   c.MaxRecentKeys,
+		MaxValueHistory: c.MaxValueHistory,
+		WatchInterval:   c.WatchInterval,
+	}
+
+	data, err := json.MarshalIndent(safeCfg, "", "  ")
 	if err != nil {
 		return err
 	}
@@ -132,7 +160,6 @@ func (c *Config) ListConnections() ([]types.Connection, error) {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 
-	// Return a copy sorted by name
 	result := make([]types.Connection, len(c.Connections))
 	copy(result, c.Connections)
 
@@ -163,7 +190,6 @@ func (c *Config) AddConnection(name, host string, port int, password string, db 
 	c.Connections = append(c.Connections, conn)
 
 	if err := c.save(); err != nil {
-		// Rollback
 		c.Connections = c.Connections[:len(c.Connections)-1]
 		c.nextID--
 		return types.Connection{}, err
@@ -179,23 +205,31 @@ func (c *Config) UpdateConnection(id int64, name, host string, port int, passwor
 	for i, conn := range c.Connections {
 		if conn.ID == id {
 			now := time.Now()
-			c.Connections[i] = types.Connection{
-				ID:       id,
-				Name:     name,
-				Host:     host,
-				Port:     port,
-				Password: password,
-				DB:       db,
-				Created:  conn.Created,
-				Updated:  now,
+			updatedConn := types.Connection{
+				ID:        id,
+				Name:      name,
+				Host:      host,
+				Port:      port,
+				Password:  password,
+				DB:        db,
+				Group:     conn.Group,
+				Color:     conn.Color,
+				UseSSH:    conn.UseSSH,
+				SSHConfig: conn.SSHConfig,
+				UseTLS:    conn.UseTLS,
+				TLSConfig: conn.TLSConfig,
+				Created:   conn.Created,
+				Updated:   now,
 			}
+
+			c.Connections[i] = updatedConn
 
 			if err := c.save(); err != nil {
 				c.Connections[i] = conn // Rollback
 				return types.Connection{}, err
 			}
 
-			return c.Connections[i], nil
+			return updatedConn, nil
 		}
 	}
 

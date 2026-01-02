@@ -94,18 +94,35 @@ func (m Model) viewConnections() string {
 		if maxVisible < 3 {
 			maxVisible = 3
 		}
+
+		// Ensure selected index is within bounds
+		selectedIdx := m.SelectedConnIdx
+		if selectedIdx >= len(m.Connections) {
+			selectedIdx = len(m.Connections) - 1
+		}
+		if selectedIdx < 0 {
+			selectedIdx = 0
+		}
+
 		startIdx := 0
-		if m.SelectedConnIdx >= maxVisible {
-			startIdx = m.SelectedConnIdx - maxVisible + 1
+		if selectedIdx >= maxVisible {
+			startIdx = selectedIdx - maxVisible + 1
 		}
 		endIdx := startIdx + maxVisible
 		if endIdx > len(m.Connections) {
 			endIdx = len(m.Connections)
+			// Adjust startIdx to show more items when at end of list
+			if endIdx-startIdx < maxVisible {
+				startIdx = endIdx - maxVisible
+				if startIdx < 0 {
+					startIdx = 0
+				}
+			}
 		}
 
 		for i := startIdx; i < endIdx; i++ {
 			conn := m.Connections[i]
-			isSelected := i == m.SelectedConnIdx
+			isSelected := i == selectedIdx
 
 			// Build connection card content
 			var card strings.Builder
