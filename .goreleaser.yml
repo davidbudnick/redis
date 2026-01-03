@@ -107,7 +107,7 @@ nfpms:
 release:
   github:
     owner: davidbudnick
-    name: redis
+    name: redis-tui
   draft: false
   prerelease: auto
   mode: append
