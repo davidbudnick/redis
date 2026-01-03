@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"github.com/davidbudnick/redis/internal/types"
+	"github.com/davidbudnick/redis-tui/internal/types"
 
 	tea "github.com/charmbracelet/bubbletea"
 )

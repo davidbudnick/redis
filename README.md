@@ -1,8 +1,8 @@
 # Redis TUI Manager
 
-[![CI](https://github.com/davidbudnick/redis/actions/workflows/ci.yml/badge.svg)](https://github.com/davidbudnick/redis/actions/workflows/ci.yml)
-[![Release](https://github.com/davidbudnick/redis/actions/workflows/release.yml/badge.svg)](https://github.com/davidbudnick/redis/actions/workflows/release.yml)
-[![Go Report Card](https://goreportcard.com/badge/github.com/davidbudnick/redis?v=1)](https://goreportcard.com/report/github.com/davidbudnick/redis)
+[![CI](https://github.com/davidbudnick/redis-tui/actions/workflows/ci.yml/badge.svg)](https://github.com/davidbudnick/redis-tui/actions/workflows/ci.yml)
+[![Release](https://github.com/davidbudnick/redis-tui/actions/workflows/release.yml/badge.svg)](https://github.com/davidbudnick/redis-tui/actions/workflows/release.yml)
+[![Go Report Card](https://goreportcard.com/badge/github.com/davidbudnick/redis-tui?v=1)](https://goreportcard.com/report/github.com/davidbudnick/redis-tui)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 A powerful terminal user interface (TUI) for managing Redis databases, built with Go and [Bubble Tea](https://github.com/charmbracelet/bubbletea).
@@ -275,7 +275,7 @@ brew install --cask redis-tui
 
 ```bash
 # Clone the repository
-git clone https://github.com/davidbudnick/redis.git
+git clone https://github.com/davidbudnick/redis-tui.git
 cd redis
 
 # Build
@@ -288,12 +288,12 @@ make install
 ### Using Go Install
 
 ```bash
-go install github.com/davidbudnick/redis@latest
+go install github.com/davidbudnick/redis-tui@latest
 ```
 
 ### Pre-built Binaries
 
-Download the latest release from the [Releases](https://github.com/davidbudnick/redis/releases) page.
+Download the latest release from the [Releases](https://github.com/davidbudnick/redis-tui/releases) page.
 
 ## Usage
 

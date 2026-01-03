@@ -5,8 +5,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/davidbudnick/redis/internal/cmd"
-	"github.com/davidbudnick/redis/internal/types"
+	"github.com/davidbudnick/redis-tui/internal/cmd"
+	"github.com/davidbudnick/redis-tui/internal/types"
 
 	tea "github.com/charmbracelet/bubbletea"
 )

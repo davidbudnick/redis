@@ -3,7 +3,7 @@ package ui
 import (
 	"testing"
 
-	"github.com/davidbudnick/redis/internal/types"
+	"github.com/davidbudnick/redis-tui/internal/types"
 )
 
 func TestNewModel(t *testing.T) {

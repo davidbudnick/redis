@@ -8,7 +8,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/davidbudnick/redis/internal/types"
+	"github.com/davidbudnick/redis-tui/internal/types"
 )
 
 // Config stores all application configuration
@@ -24,9 +24,9 @@ type Config struct {
 	MaxRecentKeys   int                       `json:"max_recent_keys"`
 	MaxValueHistory int                       `json:"max_value_history"`
 	WatchInterval   int                       `json:"watch_interval_ms"`
-	nextID int64
-	path   string
-	mu     sync.RWMutex
+	nextID          int64
+	path            string
+	mu              sync.RWMutex
 }
 
 func NewConfig(configPath string) (*Config, error) {

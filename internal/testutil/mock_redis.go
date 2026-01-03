@@ -4,7 +4,7 @@ import (
 	"errors"
 	"time"
 
-	"github.com/davidbudnick/redis/internal/types"
+	"github.com/davidbudnick/redis-tui/internal/types"
 )
 
 // ErrMockNotConnected is returned when attempting to use an unconnected mock client.

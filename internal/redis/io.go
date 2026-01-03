@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/davidbudnick/redis/internal/types"
+	"github.com/davidbudnick/redis-tui/internal/types"
 )
 
 // ExportKeys exports keys matching a pattern to a map

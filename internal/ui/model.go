@@ -6,8 +6,8 @@ import (
 
 	"github.com/charmbracelet/bubbles/textarea"
 	"github.com/charmbracelet/bubbles/textinput"
-	"github.com/davidbudnick/redis/internal/cmd"
-	"github.com/davidbudnick/redis/internal/types"
+	"github.com/davidbudnick/redis-tui/internal/cmd"
+	"github.com/davidbudnick/redis-tui/internal/types"
 
 	tea "github.com/charmbracelet/bubbletea"
 )

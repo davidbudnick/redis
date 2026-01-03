@@ -86,7 +86,7 @@ homebrew_casks:
       name: homebrew-tap
       token: "{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}"
     directory: Casks
-    homepage: https://github.com/davidbudnick/redis
+    homepage: https://github.com/davidbudnick/redis-tui
     description: A powerful TUI for managing Redis databases
     license: MIT
 
@@ -94,7 +94,7 @@ nfpms:
   - id: packages
     package_name: redis-tui
     vendor: David Budnick
-    homepage: https://github.com/davidbudnick/redis
+    homepage: https://github.com/davidbudnick/redis-tui
     maintainer: David Budnick
     description: A powerful TUI for managing Redis databases
     license: MIT
@@ -127,7 +127,7 @@ release:
     
     ### Go Install
     ```bash
-    go install github.com/davidbudnick/redis@{{.Tag}}
+    go install github.com/davidbudnick/redis-tui@{{.Tag}}
     ```
     
     ### Binary Download

@@ -1,4 +1,4 @@
-module github.com/davidbudnick/redis
+module github.com/davidbudnick/redis-tui
 
 go 1.25
 

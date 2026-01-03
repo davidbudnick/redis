@@ -6,10 +6,10 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/davidbudnick/redis/internal/cmd"
-	"github.com/davidbudnick/redis/internal/db"
-	"github.com/davidbudnick/redis/internal/types"
-	"github.com/davidbudnick/redis/internal/ui"
+	"github.com/davidbudnick/redis-tui/internal/cmd"
+	"github.com/davidbudnick/redis-tui/internal/db"
+	"github.com/davidbudnick/redis-tui/internal/types"
+	"github.com/davidbudnick/redis-tui/internal/ui"
 
 	tea "github.com/charmbracelet/bubbletea"
 )

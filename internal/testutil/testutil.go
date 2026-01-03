@@ -6,8 +6,8 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/davidbudnick/redis/internal/db"
-	"github.com/davidbudnick/redis/internal/types"
+	"github.com/davidbudnick/redis-tui/internal/db"
+	"github.com/davidbudnick/redis-tui/internal/types"
 )
 
 // TempConfigPath creates a temporary config file path for testing.

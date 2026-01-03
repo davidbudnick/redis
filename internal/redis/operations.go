@@ -3,7 +3,7 @@ package redis
 import (
 	"time"
 
-	"github.com/davidbudnick/redis/internal/types"
+	"github.com/davidbudnick/redis-tui/internal/types"
 	"github.com/redis/go-redis/v9"
 )
 

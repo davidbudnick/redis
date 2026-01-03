@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"github.com/davidbudnick/redis/internal/db"
-	"github.com/davidbudnick/redis/internal/redis"
+	"github.com/davidbudnick/redis-tui/internal/db"
+	"github.com/davidbudnick/redis-tui/internal/redis"
 )
 
 var (

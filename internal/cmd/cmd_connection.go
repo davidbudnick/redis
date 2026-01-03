@@ -3,8 +3,8 @@ package cmd
 import (
 	"log/slog"
 
-	"github.com/davidbudnick/redis/internal/redis"
-	"github.com/davidbudnick/redis/internal/types"
+	"github.com/davidbudnick/redis-tui/internal/redis"
+	"github.com/davidbudnick/redis-tui/internal/types"
 
 	tea "github.com/charmbracelet/bubbletea"
 )
