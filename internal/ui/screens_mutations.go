@@ -7,6 +7,7 @@ import (
 
 	"github.com/davidbudnick/redis-tui/internal/cmd"
 	"github.com/davidbudnick/redis-tui/internal/types"
+	"github.com/kujtimiihoxha/vimtea"
 
 	tea "github.com/charmbracelet/bubbletea"
 )
@@ -110,19 +111,24 @@ func (m Model) handleTTLEditorScreen(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 }
 
 func (m Model) handleEditValueScreen(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
+	// Handle save (ctrl+s) and quit (ctrl+q) globally
 	switch msg.String() {
-	case "enter":
+	case "ctrl+s":
 		if m.CurrentKey != nil {
 			m.Loading = true
-			return m, cmd.EditStringValueCmd(m.CurrentKey.Key, m.EditValueInput.Value())
+			content := m.VimEditor.GetBuffer().Text()
+			return m, cmd.EditStringValueCmd(m.CurrentKey.Key, content)
 		}
-	case "esc":
+	case "ctrl+q":
 		m.Screen = types.ScreenKeyDetail
-		m.EditValueInput.Blur()
-	default:
-		var inputCmd tea.Cmd
-		m.EditValueInput, inputCmd = m.EditValueInput.Update(msg)
-		return m, inputCmd
+		return m, nil
+	}
+
+	// Delegate everything else to vimtea
+	if m.VimEditor != nil {
+		updated, editorCmd := m.VimEditor.Update(msg)
+		m.VimEditor = updated.(vimtea.Editor)
+		return m, editorCmd
 	}
 	return m, nil
 }

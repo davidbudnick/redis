@@ -5,6 +5,7 @@ import (
 
 	"github.com/davidbudnick/redis-tui/internal/cmd"
 	"github.com/davidbudnick/redis-tui/internal/types"
+	"github.com/kujtimiihoxha/vimtea"
 
 	tea "github.com/charmbracelet/bubbletea"
 )
@@ -14,6 +15,11 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.WindowSizeMsg:
 		m.Width = msg.Width
 		m.Height = msg.Height
+		// Resize vimtea editor if active
+		if m.Screen == types.ScreenEditValue && m.VimEditor != nil {
+			sized, _ := m.VimEditor.SetSize(msg.Width-4, msg.Height-10)
+			m.VimEditor = sized.(vimtea.Editor)
+		}
 		return m, nil
 
 	case tea.KeyMsg:
@@ -135,6 +141,24 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	// Clipboard
 	case types.ClipboardCopiedMsg:
 		return m.handleClipboardCopiedMsg(msg)
+
+	// Editor messages (from vimtea :w/:q commands)
+	case types.EditorSaveMsg:
+		if m.CurrentKey != nil {
+			m.Loading = true
+			return m, cmd.EditStringValueCmd(m.CurrentKey.Key, msg.Content)
+		}
+	case types.EditorQuitMsg:
+		m.Screen = types.ScreenKeyDetail
+		return m, nil
+
+	default:
+		// Pass unhandled messages to vimtea editor if active
+		if m.Screen == types.ScreenEditValue && m.VimEditor != nil {
+			updated, editorCmd := m.VimEditor.Update(msg)
+			m.VimEditor = updated.(vimtea.Editor)
+			return m, editorCmd
+		}
 	}
 	return m, nil
 }

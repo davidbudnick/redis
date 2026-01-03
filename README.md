@@ -9,6 +9,8 @@ A powerful terminal user interface (TUI) for managing Redis databases, built wit
 
 **Redis TUI** is a feature-rich Redis client for the terminal that lets you browse, edit, and manage your Redis keys with ease. Perfect for developers and DevOps engineers who prefer working in the command line.
 
+![Main Screenshot](docs/main.gif)
+
 ## Quick Install
 
 ```bash
@@ -26,41 +28,6 @@ brew install --cask redis-tui
 - **Multiple Connections** - Save and switch between multiple Redis instances easily
 
 ## Screenshots
-
-### Connection Management
-```
-                    ██████╗ ███████╗██████╗ ██╗███████╗
-                    ██╔══██╗██╔════╝██╔══██╗██║██╔════╝
-                    ██████╔╝█████╗  ██║  ██║██║███████╗
-                    ██╔══██╗██╔══╝  ██║  ██║██║╚════██║
-                    ██║  ██║███████╗██████╔╝██║███████║
-                    ╚═╝  ╚═╝╚══════╝╚═════╝ ╚═╝╚══════╝
-
-                 ┌──────────────────┐ ┌──────────────────┐
-                 │ Connections      │ │ Time             │
-                 │ 4 saved          │ │ 14:32:15         │
-                 └──────────────────┘ └──────────────────┘
-
-        ╭─ Saved Connections (4) ──────────────────────────────╮
-
-        ╭────────────────────────────────────────────────────────╮
-        │ ● Production                                           │
-        │   redis.example.com:6379  [db0] [TLS]                  │
-        ╰────────────────────────────────────────────────────────╯
-        ╭────────────────────────────────────────────────────────╮
-        │ ○ Staging                                              │
-        │   staging-redis.local:6379  [db0]                      │
-        ╰────────────────────────────────────────────────────────╯
-        ╭────────────────────────────────────────────────────────╮
-        │ ○ Local Development                                    │
-        │   localhost:6379  [db0]                                │
-        ╰────────────────────────────────────────────────────────╯
-
-        ╰──────────────────────────────────────────────────────╯
-
-        [↑/↓] navigate  [enter] connect  [a] add  [e] edit  [d] delete  [q] quit
-```
-
 ### Key Browser with Preview
 ```
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────┐

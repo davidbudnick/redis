@@ -324,3 +324,11 @@ type KeyComparison struct {
 	Equal       bool
 	Differences []string
 }
+
+// EditorSaveMsg is sent when user saves in vim editor (:w)
+type EditorSaveMsg struct {
+	Content string
+}
+
+// EditorQuitMsg is sent when user quits vim editor (:q)
+type EditorQuitMsg struct{}

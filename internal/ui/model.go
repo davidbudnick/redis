@@ -4,10 +4,10 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/charmbracelet/bubbles/textarea"
 	"github.com/charmbracelet/bubbles/textinput"
 	"github.com/davidbudnick/redis-tui/internal/cmd"
 	"github.com/davidbudnick/redis-tui/internal/types"
+	"github.com/kujtimiihoxha/vimtea"
 
 	tea "github.com/charmbracelet/bubbletea"
 )
@@ -45,7 +45,7 @@ type Model struct {
 	PendingSelectKey  string
 
 	// New fields for additional features
-	EditValueInput     textarea.Model
+	VimEditor vimtea.Editor
 	EditingIndex       int
 	EditingField       string
 	AddCollectionInput []textinput.Model
@@ -173,7 +173,6 @@ type Model struct {
 }
 
 func NewModel() Model {
-	// Only create essential inputs upfront - others are created lazily when needed
 	return Model{
 		Screen:             types.ScreenConnections,
 		Connections:        []types.Connection{},
@@ -191,8 +190,32 @@ func NewModel() Model {
 		WatchInterval:      time.Second * 2,
 		KeyBindings:        types.DefaultKeyBindings(),
 		ExpiryThreshold:    300,
-		inputsInitialized:  false,
+		PatternInput:       createTextInput("Filter pattern...", 40),
+		TTLInput:           createTextInput("TTL in seconds (-1 to remove)", 30),
+		RenameInput:        createTextInput("New key name", 40),
+		CopyInput:          createTextInput("New key name for copy", 40),
+		SearchValueInput:   createTextInput("Search in values...", 40),
+		ExportInput:        createTextInput("Export filename", 40),
+		ImportInput:        createTextInput("Import filename", 40),
+		LuaScriptInput:     createTextInput("Lua script", 60),
+		DBSwitchInput:      createTextInput("Database number (0-15)", 30),
+		BulkDeleteInput:    createTextInput("Pattern to delete (e.g., user:*)", 40),
+		BatchTTLInput:      createTextInput("TTL in seconds", 30),
+		BatchTTLPattern:    createTextInput("Key pattern", 40),
+		RegexSearchInput:   createTextInput("Regex pattern", 40),
+		FuzzySearchInput:   createTextInput("Fuzzy search...", 40),
+		CompareKey1Input:   createTextInput("First key", 40),
+		CompareKey2Input:   createTextInput("Second key", 40),
+		JSONPathInput:      createTextInput("JSONPath expression (e.g., $.name)", 40),
+		inputsInitialized:  true,
 	}
+}
+
+func createTextInput(placeholder string, width int) textinput.Model {
+	ti := textinput.New()
+	ti.Placeholder = placeholder
+	ti.Width = width
+	return ti
 }
 
 func createConnectionInputs() []textinput.Model {
@@ -272,7 +295,10 @@ func createPubSubInputs() []textinput.Model {
 }
 
 func (m Model) Init() tea.Cmd {
-	return cmd.LoadConnectionsCmd()
+	return tea.Batch(
+		cmd.LoadConnectionsCmd(),
+		func() tea.Msg { return tea.EnableBracketedPaste() },
+	)
 }
 
 func (m Model) getPort() int {

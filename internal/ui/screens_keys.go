@@ -7,9 +7,43 @@ import (
 
 	"github.com/davidbudnick/redis-tui/internal/cmd"
 	"github.com/davidbudnick/redis-tui/internal/types"
+	"github.com/kujtimiihoxha/vimtea"
 
 	tea "github.com/charmbracelet/bubbletea"
 )
+
+func createVimEditor(content string, width, height int) vimtea.Editor {
+	editor := vimtea.NewEditor(
+		vimtea.WithContent(content),
+		vimtea.WithEnableStatusBar(true),
+		vimtea.WithEnableModeCommand(true),
+	)
+
+	// Add :w command to save
+	editor.AddCommand("w", func(buf vimtea.Buffer, args []string) tea.Cmd {
+		return func() tea.Msg {
+			return types.EditorSaveMsg{Content: buf.Text()}
+		}
+	})
+
+	// Add :q command to quit
+	editor.AddCommand("q", func(buf vimtea.Buffer, args []string) tea.Cmd {
+		return func() tea.Msg {
+			return types.EditorQuitMsg{}
+		}
+	})
+
+	// Add :wq command to save and quit
+	editor.AddCommand("wq", func(buf vimtea.Buffer, args []string) tea.Cmd {
+		return func() tea.Msg {
+			return types.EditorSaveMsg{Content: buf.Text()}
+		}
+	})
+
+	// Set size after creation
+	sized, _ := editor.SetSize(width, height)
+	return sized.(vimtea.Editor)
+}
 
 func (m Model) handleKeysScreen(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	if m.PatternInput.Focused() {
@@ -281,8 +315,7 @@ func (m Model) handleKeyDetailScreen(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		}
 	case "e":
 		if m.CurrentKey != nil && m.CurrentKey.Type == types.KeyTypeString {
-			m.EditValueInput.SetValue(m.CurrentValue.StringValue)
-			m.EditValueInput.Focus()
+			m.VimEditor = createVimEditor(m.CurrentValue.StringValue, m.Width-4, m.Height-10)
 			m.Screen = types.ScreenEditValue
 		}
 	case "a":

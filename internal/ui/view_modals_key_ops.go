@@ -47,22 +47,19 @@ func (m Model) viewEditValue() string {
 	var b strings.Builder
 
 	b.WriteString(titleStyle.Render("Edit Value"))
+	if m.CurrentKey != nil {
+		b.WriteString("  ")
+		b.WriteString(dimStyle.Render(m.CurrentKey.Key))
+	}
+	b.WriteString("\n")
+	b.WriteString(helpStyle.Render("ctrl+s:save  ctrl+q:quit  :w/:q in command mode"))
 	b.WriteString("\n\n")
 
-	if m.CurrentKey != nil {
-		b.WriteString(keyStyle.Render("Key: "))
-		b.WriteString(normalStyle.Render(m.CurrentKey.Key))
-		b.WriteString("\n\n")
+	if m.VimEditor != nil {
+		b.WriteString(m.VimEditor.View())
 	}
 
-	b.WriteString(keyStyle.Render("New Value:"))
-	b.WriteString("\n")
-	b.WriteString(m.EditValueInput.View())
-	b.WriteString("\n\n")
-
-	b.WriteString(helpStyle.Render("enter:save  esc:cancel"))
-
-	return m.renderModal(b.String())
+	return b.String()
 }
 
 func (m Model) viewAddToCollection() string {
